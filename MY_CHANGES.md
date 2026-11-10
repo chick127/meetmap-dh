@@ -25,3 +25,6 @@
 - frontend/src/components/photos.css, memories.css : 모바일 사진 타일
 - frontend/src/components/chat/chat.module.css, bundle.module.css : 채팅 사진 잘림 / 간격
 - frontend/src/features/calendar/calendar.module.css : 달력 칸 정사각형
+- frontend/src/components/photos.css : 모바일 사진 페이지를 '전체 추억'처럼 3열 정사각형 격자로
+- frontend/src/components/chat/ChatPanel.tsx : 모바일에서 채팅방 처음 들어올 때 한 번만 입력창이 화면 아래에 보이게 스크롤 (이후 자유 스크롤)
+- frontend/src/app/groups/page.tsx : 그룹 홈 위쪽 전환 버튼 순서 "내 그룹 | 전체 추억" (PC·모바일 공통)

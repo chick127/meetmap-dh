@@ -86,11 +86,11 @@
   .ph-two, .ph-detail { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
-  /* 모바일: 갤러리 앱처럼 작은 정사각형 사진을 촘촘하게 (사진 한 장씩 길게 내려가지 않게) */
-  .ph-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
-  .ph-card { border: 0; border-radius: 6px; background: transparent; }
+  /* 모바일: '전체 추억'처럼 정사각형 사진을 3열로 가지런히 (사진 한 장씩 길게 내려가지 않게) */
+  .ph-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+  .ph-card { border: 0; border-radius: 8px; background: transparent; }
   .ph-card-body { display: none; }
-  .ph-card .ph-collage, .ph-card .ph-collage.wide { aspect-ratio: 1 / 1; border-radius: 6px; grid-template-columns: 1fr; grid-template-rows: 1fr; }
+  .ph-card .ph-collage, .ph-card .ph-collage.wide { aspect-ratio: 1 / 1; border-radius: 8px; grid-template-columns: 1fr; grid-template-rows: 1fr; }
   .ph-card .ph-collage .ph-cell:not(:first-child) { display: none; }
   .ph-card .ph-count { top: 4px; right: 4px; padding: 1px 6px; font-size: 10px; }
   .ph-card .ph-check { top: 5px; left: 5px; width: 22px; height: 22px; font-size: 13px; }

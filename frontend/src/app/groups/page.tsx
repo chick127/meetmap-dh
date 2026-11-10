@@ -90,11 +90,11 @@ export default function GroupsPage() {
     <AppShell>
       {(loading || groups.length > 0) && (
         <nav className="mt-tabs mt-switch" aria-label="화면 고르기">
-          <button type="button" className={view === "memories" ? "on" : ""} onClick={() => setTab("memories")}>
-            전체 추억
-          </button>
           <button type="button" className={view === "groups" ? "on" : ""} onClick={() => setTab("groups")}>
             내 그룹
+          </button>
+          <button type="button" className={view === "memories" ? "on" : ""} onClick={() => setTab("memories")}>
+            전체 추억
           </button>
         </nav>
       )}
