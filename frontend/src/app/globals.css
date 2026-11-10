@@ -547,6 +547,10 @@ p {
 
   .shell-body {
     min-height: calc(100vh - 60px);
+    grid-template-columns: minmax(0, 1fr); /* 내용이 길어도 화면 밖으로 밀려나지 않게 */
+  }
+  .content {
+    min-width: 0;
   }
   /* 사이드바 → 화면 아래에 붙는 탭바 (메뉴만 남긴다) */
   .sidebar {
@@ -590,5 +594,24 @@ p {
   }
   .ph-select-bar {
     bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------- 모바일 전용 다듬기 (PC 화면은 그대로) ---------- */
+@media (max-width: 640px) {
+  /* 확정된 약속: 확정 표시는 오른쪽 위, 수정/삭제는 그 아래에 나란히 */
+  .meet-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    min-width: 0 !important;
+  }
+  .meet-actions .chip {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+  .meet-actions .btn {
+    width: 100%;
   }
 }

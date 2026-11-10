@@ -274,16 +274,35 @@
 }
 
 @media (max-width: 640px) {
+  /* 기본 달력 앱처럼 날짜 칸을 정사각형으로 */
   .cell {
-    min-height: 62px;
-    padding: 4px 4px 6px;
-    border-radius: 9px;
+    aspect-ratio: 1 / 1;
+    min-height: 0;
+    padding: 3px 3px 4px;
+    gap: 2px;
+    border-radius: 8px;
+    overflow: hidden;
   }
   .grid {
-    gap: 4px;
+    gap: 3px;
+  }
+  .num {
+    font-size: 12px;
+  }
+  .meet {
+    font-size: 10px;
+  }
+  .bars {
+    gap: 2px;
+  }
+  .bar {
+    height: 4px;
+  }
+  .barOff {
+    height: 5px;
   }
   .count {
-    font-size: 10px;
+    display: none; /* 자세한 인원은 날짜를 눌렀을 때 아래에 나와요 */
   }
   .monthLabel {
     min-width: 92px;

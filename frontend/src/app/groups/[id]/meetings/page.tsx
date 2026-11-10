@@ -969,7 +969,7 @@ export default function GroupMeetingsPage() {
                       </div>
 
                       <div
-                        className="stack"
+                        className="stack meet-actions"
                         style={{ alignItems: "flex-end", minWidth: 90 }}
                       >
                         <span className="chip">확정</span>

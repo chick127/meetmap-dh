@@ -490,6 +490,20 @@
     max-width: 85%;
   }
 
+  /* 내 말과 상대방 말 사이를 조금 더 띄워서 구분하기 쉽게 */
+  .messages {
+    gap: 20px;
+  }
+
+  .mine + .other,
+  .other + .mine {
+    margin-top: 14px;
+  }
+
+  .row {
+    gap: 10px;
+  }
+
   .side {
     grid-template-columns: minmax(0, 1fr);
   }
