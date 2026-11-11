@@ -10,6 +10,7 @@ import { api } from "@/lib/api";
 import type { MeetingRecord } from "@/lib/records";
 import { formatDate, formatDayHeading, groupByDay, groupLabel, groupPhotos, kstDay, type DayCover, type Photo, type PhotoGroup } from "@/lib/photos";
 import { buildCalendarDays, recordsByDayOf } from "@/lib/photoCalendar";
+import CalIcon from "@/components/CalIcon";
 
 export default function GroupPhotosPage() {
   return (
@@ -201,7 +202,7 @@ function Gallery({ groupId, onApiError }: { groupId: string; onApiError: (e: unk
         )}
         {dayFilter && (
           <button type="button" className="ph-day-chip" onClick={() => setDayFilter(null)} aria-label="날짜 선택 해제">
-            📅 {formatDayHeading(dayFilter).replace(/^\d+년 /, "")} ✕
+            <CalIcon /> {formatDayHeading(dayFilter).replace(/^\d+년 /, "")} ✕
           </button>
         )}
         {photos.length > 0 &&

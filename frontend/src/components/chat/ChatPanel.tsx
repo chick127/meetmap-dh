@@ -16,6 +16,7 @@ import PhotoViewerWindow from './PhotoViewerWindow'
 import { useOutgoingPhotos } from '@/hooks/useOutgoingPhotos'
 
 import ChatSidebar from './ChatSidebar'
+import { useArrivals } from '@/hooks/useArrivals'
 import styles from './chat.module.css'
 import sel from './chatSelect.module.css'
 import { useLocationShare } from '@/hooks/useLocationShare'
@@ -23,6 +24,7 @@ import MeetModePanel from './MeetModePanel'
 import VoteCreateModal from './VoteCreateModal'
 import { takeVotePicks } from '@/lib/votePicks'
 import type { PlaceValue } from '@/lib/photos'
+import CalIcon from "@/components/CalIcon";
 
 export default function ChatPanel({
   group,
@@ -39,6 +41,27 @@ export default function ChatPanel({
 
   const { start, starting } = useStartPlacePlan(group.id, setStatus)
   const meet = useLocationShare(group.id)
+  const arrivalState = useArrivals(group.id)
+
+  // 약속 정보를 처음 불러오는 동안은 "로딩", 2.5초가 지나도 없으면 "약속 없음(잠김)"으로 본다
+  const [waited, setWaited] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setWaited(true), 2500)
+    return () => clearTimeout(t)
+  }, [])
+  const arrivalsLoading = !arrivalState.arrivals && !waited
+  const locked = !arrivalsLoading && !arrivalState.arrivals?.meeting
+
+  // 좁은 화면(태블릿·모바일)에서는 Meet Mode 를 오른쪽 칸이 아니라 채팅 위에 둔다
+  const [narrow, setNarrow] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1050px)')
+    const sync = () => setNarrow(mq.matches)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
   const [voteOpen, setVoteOpen] = useState(false)
   // 약속장소 추천 화면에서 "채팅에서 투표 만들기"로 넘어오면 담은 장소로 투표 창을 연다
   const [votePlaces, setVotePlaces] = useState<PlaceValue[]>([])
@@ -252,12 +275,26 @@ export default function ChatPanel({
     }
 
     if (tool === 'MeetMode') {
+      if (locked) {
+        setStatus('예정된 약속이 없어 Meet Mode는 잠겨 있어요.')
+        return
+      }
       meet.openAsk()
       return
     }
 
     setStatus(`${tool} 기능은 다음 단계에서 연결할 예정이에요.`);
   };
+
+  const meetPanel = (
+    <MeetModePanel
+      meet={meet}
+      arrivalState={arrivalState}
+      loading={arrivalsLoading}
+      locked={locked}
+      onQuick={(text) => send(text)}
+    />
+  )
 
   return (
     <>
@@ -269,6 +306,7 @@ export default function ChatPanel({
             약속을 잡고, 사진을 나누고, 다음 이야기를 이어가요.
           </p>
         </div>
+        <ChatSidebar members={group.members} groupId={group.id} />
       </div>
 
       <div className={styles.layout}>
@@ -287,14 +325,14 @@ export default function ChatPanel({
 
           {focusDate && (
             <div className={styles.banner}>
-              <span>📅 {formatDateBand(focusDate)} 대화로 이동했어요.</span>
+              <span><CalIcon /> {formatDateBand(focusDate)} 대화로 이동했어요.</span>
               <Link href={`/groups/${group.id}/chat`} className="link-arrow">
                 최신 대화 보기 →
               </Link>
             </div>
           )}
 
-          <MeetModePanel meet={meet} />
+          {narrow && meetPanel}
 
           {selectMode && (
             <p className={sel.hint}>
@@ -381,7 +419,7 @@ export default function ChatPanel({
           )}
         </div>
 
-        <ChatSidebar members={group.members} groupId={group.id} shares={meet.shares} />
+        {!narrow && meetPanel}
       </div>
 
       <PhotoViewerWindow />

@@ -262,13 +262,6 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
               <textarea id="ph-memo" className="ph-textarea" value={memo} maxLength={500} placeholder="별다른 계획 없이 걷기만 해도 좋았던 날." onChange={(e) => setMemo(e.target.value)} />
               <span className="hint">{memo.length} / 500자 · 제목과 메모는 이번에 올리는 사진 전체에 저장돼요</span>
             </div>
-            <div className="field" style={{ marginBottom: 0 }}>
-              <label htmlFor="ph-appt">
-                약속 연결 <span className="meta">(선택)</span>
-              </label>
-              <input id="ph-appt" className="input" value="약속 기능이 연결되면 사용할 수 있어요 (준비 중)" disabled readOnly />
-              <span className="hint">이 사진이 어떤 약속에서 찍혔는지 연결할 수 있어요.</span>
-            </div>
           </section>
         </div>
 

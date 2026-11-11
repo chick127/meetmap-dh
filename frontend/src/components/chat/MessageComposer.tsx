@@ -5,7 +5,7 @@ import styles from './chat.module.css'
 import tray from './bundle.module.css'
 import { hasAllowedExtension } from '@/lib/photos'
 
-const TOOLS = ['MeetMode', '첨부', '장소 선택', '투표', '약속 연결'] // 첨부 안에 사진과 문서·파일이 들어 있다
+const TOOLS = ['MeetMode', '첨부', '장소 선택', '투표'] // 첨부 안에 사진과 문서·파일이 들어 있다
 const MAX_PHOTOS = 27 // 한 번에 보낼 수 있는 사진 수 (9장씩 3묶음)
 const BUNDLE_KEY = 'meetmap.chat.bundlePhotos' // '묶어서 보내기' 선택을 기억한다 (다음에도 그대로)
 

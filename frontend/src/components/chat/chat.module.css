@@ -1,6 +1,6 @@
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 370px);
+  grid-template-columns: minmax(0, 1fr) 420px;
   gap: 24px;
   align-items: start;
 }
@@ -637,4 +637,10 @@
     min-height: 0;
     max-height: none;
   }
+}
+
+/* 제목 줄: 왼쪽 제목, 오른쪽 함께 대화 중인 친구 + 바로가기 */
+.head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+@media (max-width: 650px) {
+  .head { display: none; }
 }

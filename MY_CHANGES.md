@@ -47,3 +47,14 @@
 - [추억 화면 폭 보정] memories.css : 태블릿/좁은 창에서 달력이 화면 전체로 늘어나지 않게 최대 460px, 사진 타일 6열
 - [모바일 사진 1열 버그] features/memory/MemoryMap.tsx : 예전 복사본 features/memory/photos.css(모바일 1열) 대신 components/photos.css 를 불러오게 변경. 추억 화면에서 사진 페이지로 이동하면 옛 CSS 가 덮어써서 사진이 1장씩 크게 뜨던 문제
 - [추억 화면 달력] components/MemoryHome.tsx, memories.css : 달력이 팝업처럼 화면을 덮던 문제(옛 .pc-back CSS 우선순위) 수정 (달력은 처음부터 펼쳐서 보여 줌, 접기 버튼 없음)
+
+## 이번 라운드 (_26)
+- [친구 MeetMap1111.zip 합침] components/chat/{ChatSidebar,MeetModePanel,ArrivalBoard}.tsx, meetmode.module.css(새 파일), ChatPanel.tsx(채팅+Meet Mode 두 칸, 약속 없으면 Meet Mode 잠금·칩도 막음), chat.module.css(오른쪽 칸 420px)
+  (친구 zip의 ChatPanel/MessageComposer 는 옛 버전 기반이라 통째로 덮지 않고 바뀐 부분만 합침 - 사진 보내기·선택 삭제 등 우리 기능 유지)
+  모바일: Meet Mode 가 채팅 입력창을 가리지 않게 한 줄 막대(열기/접기)로 접어 둠
+- [모바일] components/ScrollTopOnRoute.tsx(새 파일)+app/layout.tsx : 메뉴를 옮기면 맨 위로 (이동하는 순간 1번만, 렉 없음)
+- [모바일] chat/outgoing.module.css : 사진 여러 장 업로드 중 표시가 납작하게 눌려 안 보이던 문제
+- [모바일] chat/photoViewerStore.ts, PhotoViewerWindow.tsx : 채팅에서 사진 크게 본 뒤 뒤로가기 → 채팅방에 남고 사진 창만 닫힘
+- [약속 연결 삭제] chat/MessageComposer.tsx(칩), app/groups/[id]/photos/upload/page.tsx(약속 연결 칸)
+- [달력 이모지] components/CalIcon.tsx(새 파일) : 📅 대신 같은 그림 아이콘 (폰마다 17 로 나오던 것 통일) - meetings/page.tsx, AvailabilityCalendar.tsx, photos/page.tsx, ChatPanel.tsx, VoteCreateModal.tsx
+- [모바일 지난 기록 상세] records/[recordId]/page.tsx, components/records.css : 수정/삭제 버튼 정렬, 장소 글씨 가로로 넓게, 사진 3열
