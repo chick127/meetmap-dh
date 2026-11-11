@@ -8,7 +8,7 @@ import PhotoMap, { type PhotoPin } from './PhotoMap'
 import PhotoCollage from './PhotoCollage'
 import { api, ApiError } from '@/lib/api'
 import './maps.css'
-import './photos.css'
+import '@/components/photos.css'
 import {
   formatDate,
   groupLabel,

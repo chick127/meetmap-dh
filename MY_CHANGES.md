@@ -44,3 +44,5 @@
 - [추억 화면] 탭(사진/추억지도/지난기록) 없이 한 페이지에 정리
   app/groups/[id]/memories/page.tsx(새), components/MemoryHome.tsx(새), lib/photoCalendar.ts(새)
   components/MemoryTabs.tsx(← 추억 링크로), PhotoCalendar.tsx(inline 모드), Sidebar.tsx(추억 → /memories), features/memory/MemoryMap.tsx(MemoryMapPreview), components/memories.css, app/groups/[id]/photos/page.tsx(?day= 지원, 달력 계산을 lib 로)
+- [추억 화면 폭 보정] memories.css : 태블릿/좁은 창에서 달력이 화면 전체로 늘어나지 않게 최대 460px, 사진 타일 6열
+- [모바일 사진 1열 버그] features/memory/MemoryMap.tsx : 예전 복사본 features/memory/photos.css(모바일 1열) 대신 components/photos.css 를 불러오게 변경. 추억 화면에서 사진 페이지로 이동하면 옛 CSS 가 덮어써서 사진이 1장씩 크게 뜨던 문제

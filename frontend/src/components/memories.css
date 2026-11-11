@@ -111,7 +111,7 @@
 
 /* 달력을 팝업이 아니라 페이지 안에 그대로 놓는 모드 */
 .pc-inline-wrap { position: static; inset: auto; display: block; padding: 0; background: none; }
-.pc-inline-wrap .pc-sheet { max-width: none; width: 100%; max-height: none; box-shadow: none; border: 1px solid var(--line); border-radius: 16px; }
+.pc-inline-wrap .pc-sheet { max-width: 460px; margin: 0 auto; width: 100%; max-height: none; box-shadow: none; border: 1px solid var(--line); border-radius: 16px; }
 .pc-inline-wrap .pc-top, .pc-inline-wrap .pc-grab { display: none; }
 
 @media (max-width: 900px) {
@@ -119,4 +119,7 @@
   .mh-side { display: contents; }
   .mh-photos { order: 2; }
   .mh-map { order: 3; }
+}
+@media (min-width: 641px) and (max-width: 900px) {
+  .mh-tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
