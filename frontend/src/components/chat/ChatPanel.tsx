@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { GroupDetail, Me } from "@/hooks/useGroupContext";
 import { useGroupMessages } from "@/hooks/useGroupMessages";
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { pickName, useNameMode } from '@/lib/nameMode'
 import { api, ApiError } from '@/lib/api'
 import { useStartPlacePlan } from '@/features/recommendation/useStartPlacePlan'
@@ -286,6 +286,43 @@ export default function ChatPanel({
     setStatus(`${tool} 기능은 다음 단계에서 연결할 예정이에요.`);
   };
 
+  // 모바일: 채팅창 아래 끝을 하단 탭바 바로 위에 딱 맞춘다.
+  // 폰마다 탭바 높이가 달라서 CSS 숫자만으로는 밑에 빈 칸이 남을 수 있어, 화면 크기가 바뀔 때만 한 번 재서 맞춘다
+  // (스크롤할 때는 아무것도 하지 않으므로 렉이 없다).
+  const mainRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = mainRef.current
+    if (!el) return
+    const host = el.closest('.content') as HTMLElement | null
+    const mq = window.matchMedia('(max-width: 650px)')
+    // 하단 탭바: <nav> 자신이나 그 부모 중 화면에 고정(fixed)된 것
+    const navEl = document.querySelector('nav')
+    let nav: HTMLElement | null = navEl
+    while (nav && getComputedStyle(nav).position !== 'fixed') nav = nav.parentElement
+    const fit = () => {
+      if (!mq.matches || !nav) {
+        el.style.removeProperty('height')
+        host?.style.removeProperty('padding-bottom')
+        return
+      }
+      const navTop = (navEl ?? nav).getBoundingClientRect().top
+      const top = el.getBoundingClientRect().top + window.scrollY
+      const gap = 6
+      el.style.height = `${Math.max(420, Math.round(navTop - top - gap))}px`
+      host?.style.setProperty('padding-bottom', `${Math.round(window.innerHeight - navTop + gap)}px`)
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(fit) : null
+    if (nav) ro?.observe(nav)
+    return () => {
+      window.removeEventListener('resize', fit)
+      ro?.disconnect()
+      el.style.removeProperty('height')
+      host?.style.removeProperty('padding-bottom')
+    }
+  }, [])
+
   const meetPanel = (
     <MeetModePanel
       meet={meet}
@@ -310,7 +347,7 @@ export default function ChatPanel({
       </div>
 
       <div className={styles.layout}>
-        <div className={styles.chatMain}>
+        <div className={styles.chatMain} ref={mainRef}>
           {/* 모바일에서만: 카톡처럼 어떤 그룹 채팅방인지 맨 위에 보여 준다 */}
           <div className={styles.mobileTitle}>
             <strong>{group.name}</strong>
