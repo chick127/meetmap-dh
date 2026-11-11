@@ -308,15 +308,23 @@ export default function ChatPanel({
       const navTop = (navEl ?? nav).getBoundingClientRect().top
       const top = el.getBoundingClientRect().top + window.scrollY
       const gap = 6
-      el.style.height = `${Math.max(420, Math.round(navTop - top - gap))}px`
-      host?.style.setProperty('padding-bottom', `${Math.round(window.innerHeight - navTop + gap)}px`)
+      el.style.setProperty('height', `${Math.max(420, Math.round(navTop - top - gap))}px`, 'important')
+      host?.style.setProperty('padding-bottom', `${Math.round(window.innerHeight - navTop + gap)}px`, 'important')
     }
     fit()
+    // 폰에서는 주소창이 접히거나 글꼴이 늦게 뜨면서 높이가 한참 뒤에 안정되기도 해서, 처음 몇 번 더 맞춘다
+    const timers = [60, 300, 900, 2000].map((ms) => window.setTimeout(fit, ms))
     window.addEventListener('resize', fit)
+    window.addEventListener('orientationchange', fit)
+    window.visualViewport?.addEventListener('resize', fit)
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(fit) : null
     if (nav) ro?.observe(nav)
+    ro?.observe(document.body)
     return () => {
+      timers.forEach((t) => window.clearTimeout(t))
       window.removeEventListener('resize', fit)
+      window.removeEventListener('orientationchange', fit)
+      window.visualViewport?.removeEventListener('resize', fit)
       ro?.disconnect()
       el.style.removeProperty('height')
       host?.style.removeProperty('padding-bottom')
