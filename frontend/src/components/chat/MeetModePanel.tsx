@@ -21,26 +21,28 @@ const ACCENT = '#3f7d6e'
 // 옆으로 넘기는 카드 줄
 const rail: CSSProperties = {
   display: 'flex',
+  flexDirection: 'column',
   gap: 12,
-  overflowX: 'auto',
-  scrollSnapType: 'x mandatory',
-  padding: '4px 2px 10px',
-  margin: '0 -2px',
-  WebkitOverflowScrolling: 'touch',
+}
+
+// 내 위치 공유 카드 (보드 바로 위에 눈에 띄게)
+const mineCard: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 10,
+  padding: 16,
+  borderRadius: 18,
+  boxSizing: 'border-box',
 }
 
 // 카드 한 장의 공통 모양 (다음 카드가 살짝 보이도록 폭을 80%로)
 const slide: CSSProperties = {
-  flex: '0 0 80%',
-  maxWidth: 320,
-  minHeight: 200,
-  scrollSnapAlign: 'start',
-  borderRadius: 24,
-  padding: 20,
+  flex: 'none',
+  borderRadius: 18,
+  padding: 16,
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'space-between',
-  gap: 16,
+  gap: 12,
   boxSizing: 'border-box',
 }
 
@@ -275,6 +277,53 @@ export default function MeetModePanel({
         </div>
       )}
 
+      {mine && (
+        <section className="card mint" style={mineCard} aria-label="내 위치 공유 현황">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <ModeBadge mode={mine.mode} />
+            <strong style={{ fontSize: 16 }}>내 위치를 공유하고 있어요</strong>
+          </div>
+          <p className="muted" style={{ margin: 0 }}>
+            {mine.area ? mine.area + ' · ' : ''}
+            {mine.mode === 'once'
+              ? '1회 공유 · 위치를 갱신하지 않아요'
+              : '20초마다 갱신해요'}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <strong style={{ fontSize: 28, lineHeight: 1 }}>{left}</strong>
+            <span className="muted">분 뒤 자동으로 멈춰요</span>
+          </div>
+          <div style={{ ...track, margin: '2px 0' }}>
+            <div
+              style={{
+                height: '100%',
+                width: `${percent}%`,
+                background: ACCENT,
+                borderRadius: 999,
+                transition: 'width 0.6s',
+              }}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="button"
+              className="btn secondary sm"
+              onClick={() => openMap(mine.user_id)}
+            >
+              지도 보기
+            </button>
+            <button
+              type="button"
+              className="btn secondary sm"
+              disabled={busy}
+              onClick={() => void meet.stop()}
+            >
+              공유 중단
+            </button>
+          </div>
+        </section>
+      )}
+
       {open && arrivals && (
         <ArrivalBoard
           meet={meet}
@@ -388,68 +437,8 @@ export default function MeetModePanel({
         </section>
       )}
 
-      {(mine || others.length > 0) && (
-        <div style={rail} aria-label="위치 공유 현황">
-          {mine && (
-            <section className="card mint" style={slide}>
-              <div>
-                <ModeBadge mode={mine.mode} />
-                <h2
-                  className="card-title"
-                  style={{ margin: '12px 0 4px', fontSize: 20 }}
-                >
-                  대략적인 내 위치를
-                  <br />
-                  공유하고 있어요
-                </h2>
-                <p className="muted" style={{ margin: 0 }}>
-                  {mine.area ? mine.area + ' · ' : ''}
-                  {mine.mode === 'once'
-                    ? '1회 공유 · 위치를 갱신하지 않아요'
-                    : '20초마다 갱신해요'}
-                </p>
-              </div>
-              <div>
-                <div
-                  style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}
-                >
-                  <strong style={{ fontSize: 40, lineHeight: 1 }}>
-                    {left}
-                  </strong>
-                  <span className="muted">분 뒤 자동으로 멈춰요</span>
-                </div>
-                <div style={track}>
-                  <div
-                    style={{
-                      height: '100%',
-                      width: `${percent}%`,
-                      background: ACCENT,
-                      borderRadius: 999,
-                      transition: 'width 0.6s',
-                    }}
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    type="button"
-                    className="btn secondary sm"
-                    onClick={() => openMap(mine.user_id)}
-                  >
-                    지도 보기
-                  </button>
-                  <button
-                    type="button"
-                    className="btn secondary sm"
-                    disabled={busy}
-                    onClick={() => void meet.stop()}
-                  >
-                    공유 중단
-                  </button>
-                </div>
-              </div>
-            </section>
-          )}
-
+      {others.length > 0 && (
+        <div style={rail} aria-label="친구들의 위치 공유 현황">
           {others.map((s) => {
             const name = pickName(s, nameMode) || '알 수 없음'
             const once = s.mode === 'once'

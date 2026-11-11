@@ -280,5 +280,8 @@
   .head { min-height: 32px; }
   .mToggle { display: inline-flex; margin-left: 8px; padding: 4px 10px; border: 1px solid var(--line, #e6ebe9); border-radius: 100px; background: var(--white, #fff); color: var(--teal-dark, #1f6b60); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
   .body { display: none; }
-  .bodyOpen { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; max-height: 52vh; overflow-y: auto; }
+  .bodyOpen { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+  /* 한 줄 막대: [● Meet Mode ......... 오늘 약속 [접기]] — 상태 글씨는 접기 버튼 바로 왼쪽 */
+  .title { flex: 1; min-width: 0; }
+  .state { margin-left: auto; }
 }

@@ -58,3 +58,8 @@
 - [약속 연결 삭제] chat/MessageComposer.tsx(칩), app/groups/[id]/photos/upload/page.tsx(약속 연결 칸)
 - [달력 이모지] components/CalIcon.tsx(새 파일) : 📅 대신 같은 그림 아이콘 (폰마다 17 로 나오던 것 통일) - meetings/page.tsx, AvailabilityCalendar.tsx, photos/page.tsx, ChatPanel.tsx, VoteCreateModal.tsx
 - [모바일 지난 기록 상세] records/[recordId]/page.tsx, components/records.css : 수정/삭제 버튼 정렬, 장소 글씨 가로로 넓게, 사진 3열
+
+## 이번 라운드 (_27)
+- [Meet Mode 내 위치 공유 카드] chat/MeetModePanel.tsx : 공유 중일 때 내 카드가 아래에 작게 잘려 보이던 문제 → 보드 위에 한눈에 보이는 카드로(남은 시간·지도 보기·공유 중단), 친구 카드는 옆으로 넘기는 줄이 아니라 세로로 쌓음 (PC+모바일)
+- [모바일 Meet Mode] chat/meetmode.module.css : 펼쳤을 때 안쪽이 잘리지 않게, "오늘 약속"을 접기 버튼 바로 왼쪽(오른쪽)으로
+- [모바일 채팅 밑 빈 공간] chat/chat.module.css : 채팅창 높이를 탭바 바로 위까지 딱 맞추고, 채팅 화면은 그 아래로 더 스크롤되지 않게
