@@ -78,8 +78,8 @@ const NAV: NavItem[] = [
   { label: "채팅", icon: ICONS.chat, key: "chat", path: "chat" },
   { label: "약속", icon: ICONS.calendar, key: "meetings", path: "meetings" },
   { label: "지도", icon: ICONS.map, key: "map", path: "map?view=transit" },
-  // 사진 · 추억지도 · 지난 기록은 "추억" 한 메뉴 안의 탭으로 모았다
-  { label: "추억", icon: ICONS.photo, key: "memories", path: "photos" },
+  // 지난 기록 · 추억지도 · 사진은 "추억" 한 화면에 모아 두고, 자세히 볼 때만 각 화면으로 간다
+  { label: "추억", icon: ICONS.photo, key: "memories", path: "memories" },
   { label: "그룹 설정", icon: ICONS.settings, key: "settings", path: "settings" },
 ];
 
@@ -192,6 +192,7 @@ export default function Sidebar({
 
   const isMapPage =
     pathname === "/map" || /^\/groups\/[^/]+\/map(?:\/|$)/.test(pathname);
+  const isMemoriesPage = /^\/groups\/[^/]+\/memories(?:\/|$)/.test(pathname);
   const isPhotosPage = /^\/groups\/[^/]+\/photos(?:\/|$)/.test(pathname);
   const isRecordsPage = /^\/groups\/[^/]+\/records(?:\/|$)/.test(pathname);
   const isMeetingsPage = /^\/groups\/[^/]+\/meetings(?:\/|$)/.test(pathname);
@@ -199,7 +200,9 @@ export default function Sidebar({
   const isSettingsPage = /^\/groups\/[^/]+\/settings(?:\/|$)/.test(pathname);
   const derived: ActiveMenu = isMapPage
     ? "map"
-    : isPhotosPage
+    : isMemoriesPage
+      ? "memories"
+      : isPhotosPage
       ? "photos"
       : isRecordsPage
         ? "records"
@@ -211,7 +214,7 @@ export default function Sidebar({
               ? "settings"
               : "home";
   const picked: ActiveMenu = active ?? derived;
-  const current: ActiveMenu = picked === "photos" || picked === "records" ? "memories" : picked;
+  const current: ActiveMenu = picked === "photos" || picked === "records" || picked === "memories" ? "memories" : picked;
 
   const nicknames = info?.memberNicknames;
   const people =

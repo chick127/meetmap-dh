@@ -65,12 +65,14 @@ function DownloadButton({ groupId, photo }: { groupId: string; photo: Photo }) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
+        flex: 'none', // 제목 쪽이 줄어들어도 버튼은 찌그러지지 않게
         gap: 6,
       }}
     >
       <button
         type="button"
         className="btn secondary"
+        style={{ whiteSpace: 'nowrap' }} // 글씨가 두 줄로 꺾이지 않게
         onClick={download}
         disabled={busy}
       >

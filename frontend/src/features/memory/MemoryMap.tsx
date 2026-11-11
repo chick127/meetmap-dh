@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import PhotoLightbox from '@/components/PhotoLightbox'
 import PhotoMap, { type PhotoPin } from './PhotoMap'
 import PhotoCollage from './PhotoCollage'
@@ -411,5 +412,78 @@ export default function MemoryMap({
         </div>
       </section>
     </>
+  )
+}
+
+/**
+ * 추억 화면에 작게 보여 주는 추억지도.
+ * 누르면 큰 추억지도(/map?view=memory)로 가서 그 장소의 추억을 보여 준다.
+ */
+export function MemoryMapPreview({
+  groupId,
+  height = '320px',
+}: {
+  groupId: string
+  height?: string
+}) {
+  const router = useRouter()
+  const [photos, setPhotos] = useState<Photo[] | null>(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    api<{ photos: Photo[] }>(`/memory/groups/${groupId}/photos`)
+      .then((payload) => !cancelled && setPhotos(payload.photos))
+      .catch((e) => {
+        if (cancelled) return
+        setError(e instanceof ApiError ? e.message : '추억지도를 불러오지 못했어요.')
+        setPhotos([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [groupId])
+
+  const places = useMemo(() => buildPlaces(photos ?? []), [photos])
+  const pins: PhotoPin[] = useMemo(
+    () =>
+      places.map((pl) => {
+        const cover = pl.memories.flatMap((m) => m.photos).find((p) => p.signed_url) ?? null
+        return {
+          id: pl.key,
+          name: pl.name,
+          latitude: pl.lat,
+          longitude: pl.lng,
+          count: pl.memories.reduce((n, m) => n + m.photos.length, 0),
+          time: Date.parse(pl.memories[0].created_at) || 0,
+          thumb: cover?.signed_url ?? null,
+        }
+      }),
+    [places],
+  )
+
+  if (photos === null) return <div className="mh-skel" style={{ height }} aria-busy="true" />
+  if (error) return <p className="muted">{error}</p>
+  if (places.length === 0)
+    return (
+      <div className="mh-empty" style={{ minHeight: height }}>
+        <strong>아직 장소가 있는 추억이 없어요</strong>
+        <span>사진을 올릴 때 장소를 정하면 여기 지도에 모여요.</span>
+      </div>
+    )
+  return (
+    <div className="mm-mapbox">
+      <PhotoMap
+        pins={pins}
+        height={height}
+        onPinClick={(pin) => {
+          const place = places.find((pl) => pl.key === pin.id)
+          const batch = place?.memories[0]?.key
+          router.push(
+            `/groups/${groupId}/map?view=memory${batch ? `&batch=${encodeURIComponent(batch)}` : ''}`,
+          )
+        }}
+      />
+    </div>
   )
 }

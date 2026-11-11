@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { GroupDetail, Me } from "@/hooks/useGroupContext";
 import { useGroupMessages } from "@/hooks/useGroupMessages";
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { pickName, useNameMode } from '@/lib/nameMode'
 import { api, ApiError } from '@/lib/api'
 import { useStartPlacePlan } from '@/features/recommendation/useStartPlacePlan'
@@ -51,42 +51,6 @@ export default function ChatPanel({
   }, [group.id])
   const nameMode = useNameMode()
 
-  // 모바일: 채팅방에 처음 들어오면 카톡처럼 입력창이 화면 아래에 딱 보이게 맞춘다.
-  // 들어온 뒤에는 자유롭게 스크롤할 수 있다 (한 번만 맞추고, 손으로 스크롤하면 바로 멈춘다).
-  const composerRef = useRef<HTMLDivElement>(null)
-  const alignedOnce = useRef(false)
-  useEffect(() => {
-    if (loading || alignedOnce.current || focusDate) return
-    if (typeof window === 'undefined' || !window.matchMedia('(max-width: 650px)').matches) return
-    let cancelled = false
-    const cancel = () => {
-      cancelled = true
-    }
-    const align = () => {
-      const el = composerRef.current
-      if (cancelled || !el) return
-      const tabbar = document.querySelector<HTMLElement>('.sidebar')
-      const limit = window.innerHeight - (tabbar ? tabbar.getBoundingClientRect().height : 0) - 8
-      const over = el.getBoundingClientRect().bottom - limit
-      if (over > 1) window.scrollBy(0, over)
-    }
-    // 사진이 늦게 뜨면서 높이가 바뀔 수 있어서 잠깐 동안 몇 번 다시 맞춘다
-    const timers = [0, 150, 500, 1200].map((ms) =>
-      window.setTimeout(() => {
-        alignedOnce.current = true
-        window.requestAnimationFrame(align)
-      }, ms),
-    )
-    window.addEventListener('touchstart', cancel, { passive: true, once: true })
-    window.addEventListener('wheel', cancel, { passive: true, once: true })
-    window.addEventListener('keydown', cancel, { once: true })
-    return () => {
-      timers.forEach((t) => window.clearTimeout(t))
-      window.removeEventListener('touchstart', cancel)
-      window.removeEventListener('wheel', cancel)
-      window.removeEventListener('keydown', cancel)
-    }
-  }, [loading, focusDate])
 
   const names = new Map(
     group.members.map((m) => [m.user_id, pickName(m, nameMode)]),
@@ -241,7 +205,7 @@ export default function ChatPanel({
 
   // 사진을 여러 장 골랐을 때: 묶어서 한 말풍선으로 보내거나, 한 장씩 따로 보낸다.
   // (한 장이 실패해도 나머지는 계속 보낸다)
-  const MAX_MULTI = 48
+  const MAX_MULTI = 27
   async function uploadMany(kind: 'image' | 'file', files: File[], opts?: { bundle?: boolean }) {
     const list = files.slice(0, MAX_MULTI)
     const extra =
@@ -297,7 +261,7 @@ export default function ChatPanel({
 
   return (
     <>
-      <div className="page-head">
+      <div className={`page-head ${styles.head}`}>
         <div>
           <p className="eyebrow">그룹 채팅</p>
           <h1 className="page-title">우리의 대화</h1>
@@ -308,7 +272,12 @@ export default function ChatPanel({
       </div>
 
       <div className={styles.layout}>
-        <div>
+        <div className={styles.chatMain}>
+          {/* 모바일에서만: 카톡처럼 어떤 그룹 채팅방인지 맨 위에 보여 준다 */}
+          <div className={styles.mobileTitle}>
+            <strong>{group.name}</strong>
+            <span>{group.members.length}명</span>
+          </div>
           <div className={styles.banner}>
             <span>함께 정한 약속을 이곳에서 확인해 보세요.</span>
             <Link href={`/groups/${group.id}/meetings`} className="link-arrow">
@@ -360,7 +329,6 @@ export default function ChatPanel({
             onSendDone={outgoing.sendDoneOnly}
           />
 
-          <div ref={composerRef}>
           {selectMode ? (
             <section className={sel.dock} aria-label="선택한 메시지 삭제">
               <div className={sel.dockRow}>
@@ -411,7 +379,6 @@ export default function ChatPanel({
               canSelect={messages.length > 0}
             />
           )}
-          </div>
         </div>
 
         <ChatSidebar members={group.members} groupId={group.id} shares={meet.shares} />

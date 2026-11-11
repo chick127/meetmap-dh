@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import PlacePicker from "@/components/PlacePicker";
 import PhotoShell from "@/components/PhotoShell";
 import { ApiError } from "@/lib/api";
+import { shrinkImage } from "@/lib/imageShrink";
 import { hasAllowedExtension, MAX_BYTES, MAX_FILES, type PlaceValue } from "@/lib/photos";
 
 type Status = "wait" | "up" | "done" | "fail";
@@ -118,8 +119,10 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
       setStatus(from, to, "up");
       try {
         const form = new FormData();
-        part.forEach((i) => {
-          form.append("files", i.file);
+        // 폰 사진(5~10MB)을 올리기 전에 줄여서 올려요 → 업로드도, 나중에 사진 목록 불러오기도 훨씬 빨라져요
+        const files = await Promise.all(part.map((i) => shrinkImage(i.file)));
+        part.forEach((i, k) => {
+          form.append("files", files[k]);
           form.append("captions", i.caption.trim());
         });
         form.append("title", title.trim());

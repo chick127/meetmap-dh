@@ -29,11 +29,14 @@ export default function PhotoCalendar({
   selected,
   onSelect,
   onClose,
+  inline = false,
 }: {
   days: Map<string, DayCell>; // 날짜(YYYY-MM-DD, 한국 시간) -> 그날 정보
   selected: string | null; // 사진 목록에 걸려 있는 날짜
   onSelect: (day: string | null) => void;
   onClose: () => void;
+  /** true 면 화면 가운데 뜨는 시트가 아니라 페이지 안에 그대로 놓는다 (추억 화면의 지난 기록 칸) */
+  inline?: boolean;
 }) {
   // 처음에 보여 줄 달: 고른 날짜의 달 → 가장 최근 사진이 있는 달 → 이번 달
   const [ym, setYm] = useState(() => {
@@ -97,7 +100,13 @@ export default function PhotoCalendar({
   const canOpen = pickedPhotos > 0 || (info?.records.length ?? 0) > 0; // 사진이 없어도 약속 기록만 있는 날은 열어 볼 수 있다
 
   return (
-    <div className="pc-back" role="dialog" aria-modal="true" aria-label="달력으로 사진 보기" onClick={onClose}>
+    <div
+      className={inline ? "pc-back pc-inline-wrap" : "pc-back"}
+      role={inline ? undefined : "dialog"}
+      aria-modal={inline ? undefined : true}
+      aria-label="달력으로 사진 보기"
+      onClick={inline ? undefined : onClose}
+    >
       <div className="pc-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="pc-top">
           <span className="pc-grab" aria-hidden="true" />

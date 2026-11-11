@@ -69,10 +69,54 @@
 @media (max-width: 640px) {
   .am-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
   .am-tile { border-radius: 8px; }
+  /* 날짜 제목이 위쪽 사진들과 너무 붙어 보이지 않게: 위는 넓게, 아래(자기 사진들)와는 가깝게 */
+  .am-day { margin: 34px 0 12px; }
+  .am-day:first-child { margin-top: 0; }
   .am-tile.tinted { border-width: 3px; }
   .am-rec a { min-width: 0; padding: 10px; gap: 10px; }
   .am-rec-body { flex: 1; min-width: 0; }
   .am-rec-cover { width: 60px; height: 60px; }
   .mt-tabs button, .mt-tabs a { min-width: 0; padding: 10px 4px; font-size: 13px; }
   .am-map { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- 추억 화면 (탭 없이 한 페이지에 정리) ---- */
+.mt-back { display: inline-block; margin-bottom: 8px; color: var(--muted); font-size: 14px; font-weight: 700; text-decoration: none; }
+.mt-back:hover { color: var(--teal-dark); }
+.mh-grid { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.mh-side { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.mh-grid > .card { padding: 18px; min-width: 0; }
+.mh-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.mh-title h2 { margin: 0; font-size: 17px; }
+.mh-title a { color: var(--teal-dark); font-size: 14px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.mh-title a.btn { color: #fff; }
+.mh-actions { display: flex; align-items: center; gap: 12px; }
+.mh-sub { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+.mh-skel { border-radius: 14px; background: var(--mist); }
+.mh-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 20px; border-radius: 14px; background: var(--mist); color: var(--muted); text-align: center; font-size: 14px; }
+.mh-empty strong { color: var(--ink); }
+.mh-recs { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.mh-recs a { display: flex; align-items: center; gap: 12px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; color: inherit; text-decoration: none; }
+.mh-recs a:hover { border-color: var(--teal); }
+.mh-rec-cover { flex: none; width: 52px; height: 52px; overflow: hidden; border-radius: 10px; background: var(--mist); }
+.mh-rec-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mh-rec-body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mh-rec-body small { color: var(--muted); font-size: 12px; }
+.mh-rec-body strong { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mh-rec-body em { font-style: normal; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mh-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.mh-tile { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 10px; background: var(--mist); }
+.mh-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mh-tile span { position: absolute; right: 4px; bottom: 4px; padding: 1px 7px; border-radius: 100px; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 11px; font-weight: 700; }
+
+/* 달력을 팝업이 아니라 페이지 안에 그대로 놓는 모드 */
+.pc-inline-wrap { position: static; inset: auto; display: block; padding: 0; background: none; }
+.pc-inline-wrap .pc-sheet { max-width: none; width: 100%; max-height: none; box-shadow: none; border: 1px solid var(--line); border-radius: 16px; }
+.pc-inline-wrap .pc-top, .pc-inline-wrap .pc-grab { display: none; }
+
+@media (max-width: 900px) {
+  .mh-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .mh-side { display: contents; }
+  .mh-photos { order: 2; }
+  .mh-map { order: 3; }
 }

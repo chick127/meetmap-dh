@@ -5,9 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import AppShell from "@/components/AppShell";
-import AllMemories from "@/components/AllMemories";
-import { colorMap } from "@/lib/memories";
-import "@/components/memories.css";
 
 type Group = {
   id: number;
@@ -25,8 +22,6 @@ export default function GroupsPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  // 처음 열면 "전체 추억"을 보여주고, 그룹이 하나도 없으면 바로 그룹 만들기 화면을 보여준다
-  const [tab, setTab] = useState<"memories" | "groups" | null>(null);
 
   const loadGroups = useCallback(async () => {
     try {
@@ -83,36 +78,8 @@ export default function GroupsPage() {
     }
   }
 
-  const view = tab ?? (loading || groups.length > 0 ? "memories" : "groups");
-  const colors = colorMap(groups);
-
   return (
     <AppShell>
-      {(loading || groups.length > 0) && (
-        <nav className="mt-tabs mt-switch" aria-label="화면 고르기">
-          <button type="button" className={view === "groups" ? "on" : ""} onClick={() => setTab("groups")}>
-            내 그룹
-          </button>
-          <button type="button" className={view === "memories" ? "on" : ""} onClick={() => setTab("memories")}>
-            전체 추억
-          </button>
-        </nav>
-      )}
-
-      {view === "memories" ? (
-        <>
-          <div className="page-head">
-            <div>
-              <p className="eyebrow">내가 속한 모든 그룹</p>
-              <h1 className="page-title">우리의 추억</h1>
-              <p className="page-sub">그룹마다 색이 달라요. 위의 그룹 버튼을 누르면 그 그룹 것만 볼 수 있어요.</p>
-            </div>
-          </div>
-          {error && <div className="error">{error}</div>}
-          <AllMemories />
-        </>
-      ) : (
-    <>
       <div className="page-head">
         <div>
           <p className="eyebrow">우리만의 공간</p>
@@ -152,7 +119,6 @@ export default function GroupsPage() {
                 >
                   <div className="row-between">
                     <div className="row">
-                      <span className="gdot" style={{ "--c": colors.get(g.id) } as React.CSSProperties} title="이 그룹의 색" />
                       <span className="avatar lg">
                         {g.icon ? g.icon : g.name.slice(0, 1)}
                       </span>
@@ -229,8 +195,6 @@ export default function GroupsPage() {
           그룹 만들기 → 초대 링크 보내기 → 약속 만들기 → 사진 모으기
         </span>
       </div>
-    </>
-      )}
     </AppShell>
   );
 }
