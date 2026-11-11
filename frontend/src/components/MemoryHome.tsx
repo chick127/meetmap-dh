@@ -43,7 +43,6 @@ export default function MemoryHome({ groupId, onApiError }: { groupId: string; o
   const [records, setRecords] = useState<MeetingRecord[] | null>(null);
   const [covers, setCovers] = useState<DayCover[]>([]);
   const [error, setError] = useState("");
-  const [calOpen, setCalOpen] = useState(false); // 달력은 눌렀을 때만 펼친다
   const [mapRef, mapNear] = useNearScreen<HTMLDivElement>();
 
   useEffect(() => {
@@ -83,21 +82,14 @@ export default function MemoryHome({ groupId, onApiError }: { groupId: string; o
           <h2>지난 기록</h2>
           <Link href={`/groups/${groupId}/records`}>모두 보기 →</Link>
         </div>
-        <button type="button" className={`mh-calbtn${calOpen ? " on" : ""}`} onClick={() => setCalOpen((v) => !v)} aria-expanded={calOpen}>
-          📅 {calOpen ? "달력 접기" : "달력으로 보기"}
-        </button>
-        {calOpen && (
-          <div className="mh-calwrap">
-            <p className="mh-sub">날짜를 누르면 그날의 사진을 볼 수 있어요.</p>
-            <PhotoCalendar
-              inline
-              days={days}
-              selected={null}
-              onSelect={(d) => d && router.push(`/groups/${groupId}/photos?day=${d}`)}
-              onClose={() => undefined}
-            />
-          </div>
-        )}
+        <p className="mh-sub">날짜를 누르면 그날의 사진을 볼 수 있어요.</p>
+        <PhotoCalendar
+          inline
+          days={days}
+          selected={null}
+          onSelect={(d) => d && router.push(`/groups/${groupId}/photos?day=${d}`)}
+          onClose={() => undefined}
+        />
         {error && <div className="error">{error}</div>}
         {records === null ? (
           <div className="mh-skel" style={{ height: 120, marginTop: 14 }} aria-busy="true" />
