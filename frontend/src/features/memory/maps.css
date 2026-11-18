@@ -559,34 +559,31 @@
   outline-offset: 2px;
 }
 
-/* 모바일: 검색창은 한 줄 전체, 지역 칩은 그 아래 한 줄에서 옆으로 밀어서 봐요 */
+/* 모바일: 검색창은 한 줄 전체, 지역 칩은 그 아래에서 많아지면 다음 줄로 내려가요 */
 @media (max-width: 720px) {
   .mm-filter {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
-    margin-bottom: 14px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 16px;
   }
   .mm-search {
     flex: none;
     width: 100%;
     min-width: 0;
     max-width: none;
-    height: 46px;
+    height: 48px;
     box-sizing: border-box;
   }
   .mm-chips {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    margin-inline: -2px;
-    padding-inline: 2px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .mm-chips::-webkit-scrollbar {
-    display: none;
+    min-width: 0;
+    max-width: 100%;
   }
 }
