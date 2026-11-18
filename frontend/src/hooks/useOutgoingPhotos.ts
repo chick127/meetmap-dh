@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError } from "@/lib/api";
 import { shrinkImage } from "@/lib/imageShrink";
 import { coordToPlace, loadKakao } from "@/lib/kakao";
-import { cameraGpsOf, readPhotoGps, type Gps } from "@/lib/photoGps";
+import { cameraGpsOf, estimatePlace, readPhotoGps, type Gps } from "@/lib/photoGps";
 import { postWithProgress } from "@/lib/postWithProgress";
 
 export type OutStatus = "wait" | "up" | "done" | "fail";
@@ -35,14 +35,18 @@ function placeOfGps(gps: Gps): Promise<SavedPlace> {
 }
 
 /** 원본 사진 파일에서 찍은 위치를 찾아요 (사진을 줄이기 전에 읽어야 해요). 앱 카메라로 찍은 사진은 찍을 때의 폰 위치를 대신 써요. 없으면 null */
-async function findPlace(file: File): Promise<SavedPlace | null> {
+async function findPlace(file: File, groupId: number): Promise<SavedPlace | null> {
   try {
     let gps = await readPhotoGps(file);
     if (!gps) {
       const fallback = cameraGpsOf(file);
       if (fallback) gps = await fallback;
     }
-    return gps ? await placeOfGps(gps) : null;
+    if (gps) return await placeOfGps(gps);
+    // 폰이 위치를 지우고 넘긴 사진: 방금 찍은 사진이면 지금 위치로 채우고, 옛날 사진은 비워 둬요
+    const est = await estimatePlace(file, groupId);
+    if (!est) return null;
+    return await placeOfGps(est.gps);
   } catch {
     return null;
   }
@@ -98,7 +102,7 @@ export function useOutgoingPhotos(groupId: number, send: (text: string) => Promi
       if (!item) return;
       patchItem(key, id, { status: "up", progress: 0, error: undefined });
       try {
-        const where = await findPlace(item.file); // 줄이기 전의 원본에서 위치를 읽어요 (줄이면 위치 정보가 지워져요)
+        const where = await findPlace(item.file, groupId); // 줄이기 전의 원본에서 위치를 읽어요 (줄이면 위치 정보가 지워져요)
         const small = await shrinkImage(item.file);
         const build = (withPlace: boolean) => {
           const form = new FormData();

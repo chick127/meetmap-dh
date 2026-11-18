@@ -50,3 +50,38 @@ export function markCameraPhoto(file: File, gps: Promise<Gps | null>) {
 export function cameraGpsOf(file: File): Promise<Gps | null> | null {
   return cameraGps.get(file) ?? null;
 }
+
+// ---- 사진에 위치가 없을 때: 방금 찍은 사진이면 지금 폰의 위치를 대신 써요 ----
+// 폰(특히 안드로이드 사진 선택기)이 위치를 지워서 넘겨주는 경우가 있어요.
+// 옛날 사진은 찍은 곳을 알 수 없으니 억지로 채우지 않고 비워 둬요(약속 장소 등으로 대신 채우지 않아요).
+export type EstimatedPlace = { gps: Gps; kind: "now" };
+
+const FRESH_MS = 20 * 60 * 1000;
+
+/** 사진을 찍은 시각. 사진 안의 촬영 시각(EXIF)이 있으면 그걸, 없으면 파일의 수정 시각을 써요 */
+export async function photoTakenAt(file: File): Promise<Date | null> {
+  try {
+    const exifr = (await import("exifr")).default;
+    const t = await exifr.parse(file, ["DateTimeOriginal", "CreateDate"]);
+    const d = t?.DateTimeOriginal ?? t?.CreateDate;
+    if (d instanceof Date && !Number.isNaN(d.getTime())) return d;
+  } catch {
+    // 아래로
+  }
+  return file.lastModified ? new Date(file.lastModified) : null;
+}
+
+/** 방금(20분 이내) 찍은 사진인데 위치가 없으면 지금 폰의 위치를 돌려줘요. 아니면 null */
+export async function estimatePlace(file: File, _groupId?: string | number): Promise<EstimatedPlace | null> {
+  void _groupId;
+  try {
+    const taken = await photoTakenAt(file);
+    if (!taken) return null;
+    const age = Date.now() - taken.getTime();
+    if (age < -60000 || age > FRESH_MS) return null;
+    const g = await getCurrentGps(8000);
+    return g ? { gps: g, kind: "now" } : null;
+  } catch {
+    return null;
+  }
+}
