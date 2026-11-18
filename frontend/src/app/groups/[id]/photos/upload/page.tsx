@@ -1,16 +1,22 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PlacePicker from "@/components/PlacePicker";
 import PhotoShell from "@/components/PhotoShell";
 import { ApiError } from "@/lib/api";
 import { shrinkImage } from "@/lib/imageShrink";
+import { coordToPlace, loadKakao } from "@/lib/kakao";
+import { distanceMeters, getCurrentGps, readPhotoGps, type Gps } from "@/lib/photoGps";
 import { hasAllowedExtension, MAX_BYTES, MAX_FILES, type PlaceValue } from "@/lib/photos";
 
 type Status = "wait" | "up" | "done" | "fail";
-type Item = { id: string; file: File; caption: string; preview: string; status: Status };
+// gps: undefined = 위치를 읽는 중, null = 이 사진에는 위치 정보가 없어요
+type Item = { id: string; file: File; caption: string; preview: string; status: Status; gps?: Gps | null };
+
+// 위치가 이만큼(미터) 넘게 떨어진 사진이 섞여 있으면 나눠서 올리라고 안내해요
+const FAR_METERS = 300;
 
 // 사진을 이 장수씩 끊어서 올려요. 한 번에 너무 크게 보내다 끊기는 걸 막고, 진행률을 보여주기 위해서예요.
 const CHUNK = 3;
@@ -50,10 +56,21 @@ export default function UploadPage() {
 function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unknown) => string }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const camRef = useRef<HTMLInputElement>(null);
+  const camGpsRef = useRef<Promise<Gps | null> | null>(null); // "카메라로 찍기"를 누른 순간 폰의 위치
+  const placeTouchedRef = useRef(false); // 사용자가 장소를 직접 고르거나 해제했다면 자동 입력으로 덮어쓰지 않아요
+  const autoPlacedRef = useRef(false);
+  // 터치 기기(폰·태블릿)에서만 "카메라로 찍기"를 보여줘요
+  const canCamera = useSyncExternalStore(
+    () => () => {},
+    () => typeof navigator !== "undefined" && navigator.maxTouchPoints > 0,
+    () => false,
+  );
   const [items, setItems] = useState<Item[]>([]);
   const [title, setTitle] = useState("");
   const [memo, setMemo] = useState("");
   const [place, setPlace] = useState<PlaceValue | null>(null);
+  const [autoPlaced, setAutoPlaced] = useState(false); // 장소가 사진의 위치에서 자동으로 채워진 것인지
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [progress, setProgress] = useState(0); // 0~100
@@ -62,7 +79,42 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
   const doneCount = items.filter((i) => i.status === "done").length;
   const failCount = items.filter((i) => i.status === "fail").length;
 
-  function onFiles(list: FileList | null) {
+  // 새로 고른 사진들의 위치를 읽고, 장소가 비어 있으면 첫 번째로 위치가 있는 사진의 위치로 채워요
+  async function readLocations(added: { id: string; file: File }[], fallback: Promise<Gps | null> | null) {
+    const found: { id: string; gps: Gps | null }[] = [];
+    for (const a of added) {
+      let gps = await readPhotoGps(a.file); // 줄이기 전의 원본 파일에서 읽어야 해요
+      if (!gps && fallback) gps = await fallback; // 앱 카메라로 찍은 사진인데 파일에 위치가 없으면 찍을 때의 폰 위치를 써요
+      found.push({ id: a.id, gps });
+    }
+    setItems((cur) => cur.map((x) => (found.some((f) => f.id === x.id) ? { ...x, gps: found.find((f) => f.id === x.id)!.gps } : x)));
+    const first = found.find((f) => f.gps)?.gps;
+    if (first && !placeTouchedRef.current && !autoPlacedRef.current) {
+      autoPlacedRef.current = true;
+      try {
+        const kakao = await loadKakao();
+        const p = await coordToPlace(kakao, first.lat, first.lng);
+        if (!placeTouchedRef.current) {
+          setPlace({ id: null, name: p?.name ?? "사진에 담긴 위치", address: p?.address ?? null, lat: first.lat, lng: first.lng });
+          setAutoPlaced(true);
+        }
+      } catch {
+        // 카카오 지도를 못 불러와도 좌표는 쓸 수 있어요 (이름만 기본값)
+        if (!placeTouchedRef.current) {
+          setPlace({ id: null, name: "사진에 담긴 위치", address: null, lat: first.lat, lng: first.lng });
+          setAutoPlaced(true);
+        }
+      }
+    }
+  }
+
+  function openCamera() {
+    if (busy || started) return;
+    camGpsRef.current = getCurrentGps(); // 카메라를 열기 전에 위치를 잡기 시작해요 (권한 창이 먼저 떠요)
+    camRef.current?.click();
+  }
+
+  function onFiles(list: FileList | null, fallback: Promise<Gps | null> | null = null) {
     if (!list || busy || started) return;
     setError("");
     const incoming = Array.from(list);
@@ -78,12 +130,23 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
       setError("사진 한 장은 20MB 이하여야 해요. 용량을 줄인 뒤 다시 선택해 주세요.");
       return;
     }
+    const added = incoming.map((file) => ({ id: crypto.randomUUID(), file }));
     setItems((cur) => [
       ...cur,
-      ...incoming.map((file) => ({ id: crypto.randomUUID(), file, caption: "", preview: URL.createObjectURL(file), status: "wait" as Status })),
+      ...added.map((a) => ({ id: a.id, file: a.file, caption: "", preview: URL.createObjectURL(a.file), status: "wait" as Status })),
     ]);
     if (inputRef.current) inputRef.current.value = "";
+    if (camRef.current) camRef.current.value = "";
+    void readLocations(added, fallback);
   }
+
+  // 사진 위치 요약: 몇 장에서 위치를 찾았는지, 서로 많이 떨어진 사진이 섞였는지
+  const loc = useMemo(() => {
+    const reading = items.some((i) => i.gps === undefined);
+    const withGps = items.filter((i) => i.gps).map((i) => i.gps as Gps);
+    const far = withGps.length > 1 && withGps.some((g) => distanceMeters(withGps[0], g) > FAR_METERS);
+    return { reading, found: withGps.length, far };
+  }, [items]);
 
   function removeItem(id: string) {
     setItems((cur) => {
@@ -202,6 +265,41 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
               accept="image/*"
               onChange={(e) => onFiles(e.target.files)}
             />
+            {canCamera && (
+              <div className="ph-pickrow">
+                <button type="button" className="btn secondary" onClick={openCamera} disabled={busy || started}>
+                  📷 카메라로 찍기
+                </button>
+              </div>
+            )}
+            <input
+              ref={camRef}
+              type="file"
+              hidden
+              accept="image/*"
+              capture="environment"
+              onChange={(e) => onFiles(e.target.files, camGpsRef.current)}
+            />
+            {items.length > 0 && (
+              <div className="ph-loc" role="status" aria-live="polite">
+                {loc.reading ? (
+                  <p className="info">사진의 위치 정보를 확인하는 중이에요…</p>
+                ) : loc.found > 0 ? (
+                  <p>
+                    📍 {items.length}장 중 {loc.found}장에서 찍은 위치를 찾았어요.
+                  </p>
+                ) : (
+                  <p className="info">
+                    선택한 사진에는 위치 정보가 없어요. 오른쪽에서 장소를 직접 골라 주세요. (카메라 위치 태그가 꺼져 있거나, 스크린샷·메신저로 받은 사진은 위치가 없어요. 아이폰은 사진 선택 창의 [옵션]에서 [위치]를 켜면 위치가 함께 올라와요.)
+                  </p>
+                )}
+                {loc.far && (
+                  <p className="warn">
+                    찍은 곳이 서로 많이 다른 사진이 섞여 있어요. 한 번에 올리면 장소가 한 곳으로만 저장되니, 장소별로 나눠서 올리면 추억지도에 정확히 찍혀요.
+                  </p>
+                )}
+              </div>
+            )}
             <p className="ph-hint">여러 장을 함께 올리면 갤러리에서 한 묶음으로 보여요. 실제 파일은 [사진 저장하기]를 눌러야 올라가요.</p>
 
             {items.length > 0 && (
@@ -212,6 +310,7 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={item.preview} alt={`선택한 사진 ${i + 1}`} />
                       <span className="ph-badge">{i === 0 ? "대표 사진" : `${i + 1}번째`}</span>
+                      {item.gps !== undefined && <span className={`ph-gpsmark${item.gps ? "" : " none"}`}>{item.gps ? "📍 위치 있음" : "위치 없음"}</span>}
                       {item.status !== "wait" && (
                         <span className={`ph-state ${item.status}`}>
                           {item.status === "up" ? "올리는 중…" : item.status === "done" ? "✓ 완료" : "실패"}
@@ -270,7 +369,16 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
             <h2 className="card-title" style={{ marginBottom: 14 }}>
               어디에서 찍었나요?
             </h2>
-            <PlacePicker value={place} onChange={setPlace} disabled={busy || started} />
+            <PlacePicker
+              value={place}
+              onChange={(p) => {
+                placeTouchedRef.current = true; // 직접 고르거나 해제한 뒤에는 자동 입력으로 바꾸지 않아요
+                setAutoPlaced(false);
+                setPlace(p);
+              }}
+              disabled={busy || started}
+              note={autoPlaced ? "📍 사진에 담긴 위치로 자동 입력했어요. 다르면 [장소 해제] 후 직접 검색해 주세요." : undefined}
+            />
           </section>
           <section className="card mint">
             <h2 className="card-title" style={{ marginBottom: 6 }}>

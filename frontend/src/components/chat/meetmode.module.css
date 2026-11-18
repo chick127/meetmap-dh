@@ -276,8 +276,8 @@
 .mToggle { display: none; }
 .body { display: contents; }
 @media (max-width: 650px) {
-  .panel { gap: 0; padding: 10px 14px; border-radius: 16px; max-height: none; overflow: visible; }
-  .head { min-height: 32px; }
+  .panel { gap: 0; padding: 4px 12px; border-radius: 14px; max-height: none; overflow: visible; margin-bottom: 6px; }
+  .head { min-height: 30px; font-size: 14px; }
   .mToggle { display: inline-flex; margin-left: 8px; padding: 4px 10px; border: 1px solid var(--line, #e6ebe9); border-radius: 100px; background: var(--white, #fff); color: var(--teal-dark, #1f6b60); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
   .body { display: none; }
   .bodyOpen { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
