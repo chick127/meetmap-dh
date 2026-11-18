@@ -50,7 +50,6 @@ export default function MessageComposer({
   const [text, setText] = useState('')
   const imageRef = useRef<HTMLInputElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
-  const rawRef = useRef<HTMLInputElement>(null) // 폰의 파일 선택창으로 사진을 고르는 입력 (위치 정보가 지워지지 않게)
   const cameraRef = useRef<HTMLInputElement>(null)
   const camGpsRef = useRef<Promise<Gps | null> | null>(null) // 카메라를 연 순간 폰의 위치
   // 터치 기기(폰·태블릿)에서만 카메라 버튼을 보여준다
@@ -251,17 +250,6 @@ export default function MessageComposer({
               📷 카메라
             </button>
           )}
-          {canCamera && (
-            <button
-              type="button"
-              onClick={() => {
-                setAttachOpen(false)
-                rawRef.current?.click()
-              }}
-            >
-              📁 원본 사진 (위치 유지)
-            </button>
-          )}
           <button
             type="button"
             onClick={() => {
@@ -289,14 +277,6 @@ export default function MessageComposer({
         capture="environment"
         hidden
         onChange={(e) => pickCamera(e.target)}
-      />
-      <input
-        ref={rawRef}
-        type="file"
-        multiple
-        accept="image/*,application/pdf"
-        hidden
-        onChange={(e) => pick('image', e.target)}
       />
       <input
         ref={fileRef}

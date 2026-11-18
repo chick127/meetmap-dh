@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PlacePicker from "@/components/PlacePicker";
@@ -8,7 +8,7 @@ import PhotoShell from "@/components/PhotoShell";
 import { ApiError } from "@/lib/api";
 import { shrinkImage } from "@/lib/imageShrink";
 import { coordToPlace, loadKakao } from "@/lib/kakao";
-import { distanceMeters, estimatePlace, getCurrentGps, readPhotoGps, type Gps } from "@/lib/photoGps";
+import { distanceMeters, estimatePlace, readPhotoGps, type Gps } from "@/lib/photoGps";
 import { hasAllowedExtension, MAX_BYTES, MAX_FILES, type PlaceValue } from "@/lib/photos";
 
 type Status = "wait" | "up" | "done" | "fail";
@@ -56,17 +56,8 @@ export default function UploadPage() {
 function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unknown) => string }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
-  const camRef = useRef<HTMLInputElement>(null);
-  const rawRef = useRef<HTMLInputElement>(null); // 폰의 파일 선택창으로 고르는 입력 (사진 속 위치가 지워지지 않게)
-  const camGpsRef = useRef<Promise<Gps | null> | null>(null); // "카메라로 찍기"를 누른 순간 폰의 위치
   const placeTouchedRef = useRef(false); // 사용자가 장소를 직접 고르거나 해제했다면 자동 입력으로 덮어쓰지 않아요
   const autoPlacedRef = useRef(false);
-  // 터치 기기(폰·태블릿)에서만 "카메라로 찍기"를 보여줘요
-  const canCamera = useSyncExternalStore(
-    () => () => {},
-    () => typeof navigator !== "undefined" && navigator.maxTouchPoints > 0,
-    () => false,
-  );
   const [items, setItems] = useState<Item[]>([]);
   const [title, setTitle] = useState("");
   const [memo, setMemo] = useState("");
@@ -122,12 +113,6 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
     }
   }
 
-  function openCamera() {
-    if (busy || started) return;
-    camGpsRef.current = getCurrentGps(); // 카메라를 열기 전에 위치를 잡기 시작해요 (권한 창이 먼저 떠요)
-    camRef.current?.click();
-  }
-
   function onFiles(list: FileList | null, fallback: Promise<Gps | null> | null = null) {
     if (!list || busy || started) return;
     setError("");
@@ -150,8 +135,6 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
       ...added.map((a) => ({ id: a.id, file: a.file, caption: "", preview: URL.createObjectURL(a.file), status: "wait" as Status })),
     ]);
     if (inputRef.current) inputRef.current.value = "";
-    if (camRef.current) camRef.current.value = "";
-    if (rawRef.current) rawRef.current.value = "";
     void readLocations(added, fallback);
   }
 
@@ -280,32 +263,6 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
               accept="image/*"
               onChange={(e) => onFiles(e.target.files)}
             />
-            {canCamera && (
-              <div className="ph-pickrow">
-                <button type="button" className="btn secondary" onClick={openCamera} disabled={busy || started}>
-                  📷 카메라로 찍기
-                </button>
-                <button type="button" className="btn secondary" onClick={() => rawRef.current?.click()} disabled={busy || started}>
-                  📁 원본 사진 고르기 (위치 유지)
-                </button>
-              </div>
-            )}
-            <input
-              ref={rawRef}
-              type="file"
-              hidden
-              multiple
-              accept="image/*,application/pdf"
-              onChange={(e) => onFiles(e.target.files)}
-            />
-            <input
-              ref={camRef}
-              type="file"
-              hidden
-              accept="image/*"
-              capture="environment"
-              onChange={(e) => onFiles(e.target.files, camGpsRef.current)}
-            />
             {items.length > 0 && (
               <div className="ph-loc" role="status" aria-live="polite">
                 {loc.reading ? (
@@ -316,7 +273,7 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
                   </p>
                 ) : (
                   <p className="info">
-                    선택한 사진에는 위치 정보가 없어요. 오른쪽에서 장소를 직접 골라 주세요. (카메라 위치 태그가 꺼져 있거나, 스크린샷·메신저로 받은 사진은 위치가 없어요. 아이폰은 사진 선택 창의 [옵션]에서 [위치]를 켜면 위치가 함께 올라와요.)
+                    선택한 사진에는 위치 정보가 없어요. 오른쪽에서 장소를 직접 골라 주세요. (일부 폰은 사진 선택창이 사진 속 위치를 지워서 넘겨요. 스크린샷·메신저로 받은 사진도 위치가 없어요. 아이폰은 사진 선택 창의 [옵션]에서 [위치]를 켜면 위치가 함께 올라와요.)
                   </p>
                 )}
                 {loc.far && (
