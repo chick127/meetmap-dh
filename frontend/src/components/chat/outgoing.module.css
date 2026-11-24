@@ -36,3 +36,14 @@
 @media (max-width: 650px) {
   .wrap { flex: none; max-height: 38vh; }
 }
+
+/* 모바일: 한 장 올릴 때 사진이 화면을 가득 채워 잘리던 것을 작게, 말풍선 색은 채팅과 맞춘다 */
+@media (max-width: 650px) {
+  .wrap { margin: 6px 0 0; max-height: none; }
+  .wrap .bubble { padding: 6px; border: 1px solid var(--brown, #46302b); background: var(--paper, #fffaf2); box-shadow: none; border-radius: 10px 10px 3px 10px; }
+  .wrap .mosaic:has(.mrow:only-child > .cell:only-child) { width: 132px !important; }
+  .wrap .mosaic:has(.mrow:only-child > .cell:only-child) .cell { aspect-ratio: 1; }
+  .wrap .loading { gap: 4px; }
+  .wrap .spin { width: 22px; height: 22px; border-width: 2px; }
+  .wrap .loading strong { font-size: 14px; }
+}

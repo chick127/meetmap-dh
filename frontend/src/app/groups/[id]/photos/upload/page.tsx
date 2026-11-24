@@ -56,6 +56,7 @@ export default function UploadPage() {
 function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unknown) => string }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const filePickRef = useRef<HTMLInputElement>(null); // "내 파일에서 고르기" (accept 없이 열어 갤러리 선택창을 거치지 않는다)
   const placeTouchedRef = useRef(false); // 사용자가 장소를 직접 고르거나 해제했다면 자동 입력으로 덮어쓰지 않아요
   const autoPlacedRef = useRef(false);
   const [items, setItems] = useState<Item[]>([]);
@@ -135,6 +136,7 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
       ...added.map((a) => ({ id: a.id, file: a.file, caption: "", preview: URL.createObjectURL(a.file), status: "wait" as Status })),
     ]);
     if (inputRef.current) inputRef.current.value = "";
+    if (filePickRef.current) filePickRef.current.value = "";
     void readLocations(added, fallback);
   }
 
@@ -263,6 +265,12 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
               accept="image/*"
               onChange={(e) => onFiles(e.target.files)}
             />
+            {/* 안드로이드 갤러리 선택창은 사진 속 위치를 지워서 넘겨요. accept 없이 열면 "내 파일"(파일 탐색기)이 열려 원본 파일을 고를 수 있어요 */}
+            <input ref={filePickRef} type="file" hidden multiple onChange={(e) => onFiles(e.target.files)} />
+            <button type="button" className="btn secondary sm" style={{ marginTop: 10 }} onClick={() => filePickRef.current?.click()}>
+              📁 내 파일에서 고르기
+            </button>
+            <p className="ph-hint">사진의 위치가 안 읽히는 폰이라면 이 버튼으로 내장 메모리 &gt; DCIM &gt; Camera 폴더의 사진을 골라 보세요.</p>
             {items.length > 0 && (
               <div className="ph-loc" role="status" aria-live="polite">
                 {loc.reading ? (
