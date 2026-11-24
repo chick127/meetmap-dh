@@ -7,17 +7,17 @@
     position: relative;
     flex: none;
     z-index: 20;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
   .bar {
     width: 100%;
     display: flex;
     align-items: center;
     gap: 8px;
-    min-height: 36px;
-    padding: 4px 12px;
+    min-height: 40px;
+    padding: 6px 12px;
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: 10px;
     background: var(--white);
     color: var(--ink);
     font-family: inherit;
@@ -49,9 +49,20 @@
     overflow-y: auto;
     padding: 10px;
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: 10px;
     background: var(--white);
     box-shadow: 0 10px 28px rgba(33, 60, 64, 0.18);
     overscroll-behavior: contain;
   }
+}
+
+/* Panel is anchored to the entire compact header, not the small button. */
+@media (max-width: 1050px) {
+  .wrap { position: static; margin: 0; flex: none; }
+  .bar { min-height: 40px; padding: 6px 10px; font-size: 12px; gap: 4px; }
+  .badges { display: none; }
+  .panel { top: calc(100% + 4px); max-height: min(54dvh, 460px); }
+}
+@media (max-width: 650px) {
+  :global(.app-shell[data-keyboard="open"]) .wrap { display: none; }
 }

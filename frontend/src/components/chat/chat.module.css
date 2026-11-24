@@ -15,7 +15,7 @@
   gap: 10px;
   margin-bottom: 16px;
   padding: 13px 15px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--mint);
   font-size: 13px;
   font-weight: 700;
@@ -78,7 +78,7 @@
 
 .bubble {
   padding: 11px 13px;
-  border: 1px solid #eef0ec;
+  border: 1px solid var(--mist);
   border-radius: 5px 13px 13px 13px;
   background: var(--white);
   font-size: 13px;
@@ -89,7 +89,7 @@
 
 .mine .bubble {
   border-color: var(--mint);
-  border-radius: 13px 5px 13px 13px;
+  border-radius: 8px 5px 13px 13px;
   background: var(--mint);
 }
 
@@ -106,8 +106,8 @@
 .composer {
   margin-top: 8px;
   padding: 13px;
-  border: 1px solid #eef0ec;
-  border-radius: 15px;
+  border: 1px solid var(--mist);
+  border-radius: 10px;
   background: var(--white);
 }
 
@@ -121,7 +121,7 @@
 .chip {
   padding: 6px 10px;
   border: 0;
-  border-radius: 20px;
+  border-radius: 10px;
   background: #f1f5f3;
   color: #617477;
   font-family: inherit;
@@ -149,8 +149,8 @@
   flex: 1;
   padding: 10px 12px;
   border: 1px solid #dfe8e5;
-  border-radius: 12px;
-  background: #fff;
+  border-radius: 8px;
+  background: var(--white);
   color: #1f6f68;
   font-family: inherit;
   font-size: 13px;
@@ -356,7 +356,7 @@
   display: inline-block;
   margin-bottom: 10px;
   padding: 6px 9px;
-  border-radius: 20px;
+  border-radius: 10px;
   background: var(--mint);
   color: var(--teal);
   font-size: 10px;
@@ -370,7 +370,7 @@
   min-height: 100px;
   margin-bottom: 11px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #e2f0eb, #e8ece4);
+  background: linear-gradient(135deg, var(--mint), #e8ece4);
   font-size: 31px;
 }
 
@@ -439,7 +439,7 @@
   min-width: 110px;
   padding: 5px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--white);
   box-shadow: 0 8px 24px rgba(33, 60, 64, 0.16);
 }
@@ -476,7 +476,7 @@
   width: 100%;
   max-width: 340px;
   padding: 20px;
-  border-radius: 18px;
+  border-radius: 10px;
   background: var(--white);
 }
 
@@ -551,8 +551,6 @@
     display: flex;
     flex-direction: column;
     /* 위 84px(머리글+여백) + 아래 66px(하단 탭바) 만큼만 빼서, 채팅창 밑에 빈 칸도 없고 더 내려가지도 않게 */
-    height: calc(100vh - 150px);
-    height: calc(100dvh - 150px - env(safe-area-inset-bottom, 0px));
     min-height: 0;
   }
 
@@ -590,7 +588,7 @@
     flex: none;
     margin-top: 6px;
     padding: 8px;
-    border-radius: 12px;
+    border-radius: 8px;
   }
   .tools {
     flex-wrap: nowrap;
@@ -637,13 +635,6 @@
     flex: 1 1 auto;
     min-height: 0;
     max-height: none;
-  }
-}
-
-/* 채팅 화면은 탭바 바로 위까지만 쓰고 그 아래로 스크롤되지 않게 (모바일) */
-@media (max-width: 650px) {
-  :global(.content):has(.chatMain) {
-    padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -771,101 +762,170 @@
   }
 }
 
+.meetDialog {
+  position: fixed;
+  inset: auto;
+  top: calc(var(--sheet-top, 0px) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 94%;
+  max-width: 640px;
+  max-height: calc(var(--sheet-height, 100dvh) - 24px);
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  color: #254347;
+  overflow: hidden;
+}
+.meetDialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.meetDialog::backdrop {
+  background: rgb(16 34 37 / 45%);
+}
+.meetDialogHeader {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.meetDialogHeader h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.meetDialogBody {
+  overflow-y: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
 
-/* ===== 채팅 내용이 더 크게 보이도록 (PC·태블릿·모바일 공통 보정) ===== */
+.meetLauncher {
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  color: #254347;
+  padding: 10px;
+  text-align: left;
+}
+@media (max-width: 650px) {
+  .layout {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+  .chatMain {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .chatMain > * {
+    flex-shrink: 0;
+    min-width: 0;
+  }
+  .chatMain > .messages {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .composer {
+    margin-top: 4px;
+  }
+  .composerBottom {
+    min-width: 0;
+  }
+  .composerBottom :global(.input) {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+    font-size: 16px;
+  }
+  .composerBottom > button {
+    flex: none;
+  }
+  :global(.app-shell[data-keyboard="open"]) .mobileTitle,
+  :global(.app-shell[data-keyboard="open"]) .meetLauncher {
+    display: none;
+  }
+}
 
-/* PC: 위쪽 큰 제목 영역을 한 줄로 줄여서 대화창이 그만큼 커지게 */
+@media (max-width: 650px) {
+  .outgoingArea {
+    flex: 0 1 auto;
+    max-height: 22%;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .selectionHint {
+    max-height: 48px;
+    overflow-y: auto;
+    margin: 4px 0;
+  }
+  .selectionDock {
+    max-height: 35%;
+    overflow-y: auto;
+  }
+}
+
+/* Compact chat controls; messages own the remaining space. */
+.toolsToggle {
+  display: none;
+}
+.compactTop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  margin-bottom: 6px;
+  z-index: 20;
+}
+.compactTop .meetLauncher {
+  min-height: 40px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.status:empty {
+  display: none;
+}
 @media (min-width: 1051px) {
   .head {
-    align-items: center;
     margin-bottom: 12px;
-  }
-  .head :global(.eyebrow),
-  .head :global(.page-sub) {
-    display: none;
+    align-items: center;
   }
   .head :global(.page-title) {
     margin: 0;
     font-size: 26px;
-    line-height: 1.2;
+  }
+  .head :global(.page-sub) {
+    margin: 4px 0 0;
+  }
+  .head :global(.eyebrow) {
+    margin: 0 0 4px;
   }
   .chatMain > .banner {
-    margin-bottom: 10px;
-    padding: 9px 14px;
-  }
-}
-
-/* 태블릿: 대화창이 화면 높이를 따라가도록 (고정 520px 제한 해제) */
-@media (min-width: 651px) and (max-width: 1050px) {
-  .messages {
-    min-height: 340px;
-    max-height: none;
-    height: calc(100dvh - 400px);
-  }
-}
-
-/* 모바일: 위의 막대들을 더 얇게, 낮은 화면(작은 폰·가로)에서는 제목도 숨긴다 */
-@media (max-width: 650px) {
-  .mobileTitle {
-    padding-bottom: 4px;
-  }
-  .mobileTitle strong {
-    font-size: 16px;
-  }
-}
-@media (max-width: 650px) and (max-height: 720px) {
-  .mobileTitle {
-    display: none;
-  }
-}
-
-/* PC: 왼쪽 메뉴가 길어서 페이지가 아래로 더 늘어나며 채팅창 밑에 빈 공간이 생기던 문제.
-   채팅방에서는 화면 높이에 딱 맞추고, 왼쪽 메뉴는 필요하면 자기 안에서만 스크롤한다. */
-@media (min-width: 1051px) {
-  :global(.shell-body):has(.chatMain) {
-    height: calc(100vh - 80px);
-    height: calc(100dvh - 80px);
-    min-height: 0;
-    overflow: hidden;
-  }
-  :global(.shell-body):has(.chatMain) > :global(.sidebar) {
-    min-height: 0;
-    overflow-y: auto;
-  }
-  :global(.shell-body):has(.chatMain) > :global(.content) {
-    min-height: 0;
-    overflow: hidden;
-    padding-bottom: 24px;
-  }
-}
-
-/* PC인데 화면 높이가 낮을 때(브라우저 100% 확대 + 노트북 등): 위아래 여백을 줄여서 메시지 칸을 더 크게 */
-@media (min-width: 1051px) and (max-height: 860px) {
-  :global(body):has(.chatMain) :global(.shell-header) {
-    height: 60px;
-  }
-  :global(.shell-body):has(.chatMain) {
-    height: calc(100vh - 60px);
-    height: calc(100dvh - 60px);
-  }
-  :global(.shell-body):has(.chatMain) > :global(.content) {
-    padding-top: 14px;
-    padding-bottom: 14px;
-  }
-  .head {
+    padding: 8px 12px;
     margin-bottom: 8px;
   }
-  .head :global(.page-title) {
-    font-size: 22px;
-  }
-  .chatMain > .banner {
-    margin-bottom: 6px;
-    padding: 6px 12px;
-    font-size: 12px;
+  .rightWrap {
+    min-height: 0;
   }
   .composer {
-    margin-top: 6px;
-    padding: 8px 12px;
+    padding: 8px 10px;
   }
   .composer > .hint {
     display: none;
@@ -874,11 +934,1095 @@
     margin-bottom: 6px;
   }
   .composerBottom :global(.input) {
-    min-height: 0;
+    flex: 1;
+    min-width: 0;
+    width: 0;
+  }
+}
+@media (max-width: 650px) {
+  .compactTop .mobileTitle {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    align-items: center;
+    gap: 4px;
+  }
+  .mobileTitle strong {
+    font-size: 16px;
+  }
+  .mobileTitle span {
+    font-size: 11px;
+  }
+  .tools {
+    display: none;
+  }
+  .tools.toolsOpen {
+    display: flex;
+    flex-wrap: wrap;
+    padding-bottom: 4px;
+  }
+  .toolsToggle {
+    display: grid;
+    place-items: center;
+    width: 40px;
     height: 40px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--mint);
+    color: var(--teal);
+    font-size: 26px;
+    cursor: pointer;
+  }
+  .chip {
+    min-height: 40px;
+  }
+  .composerBottom {
+    gap: 6px;
+  }
+  .composerBottom :global(.input),
+  .send {
+    height: 42px;
   }
   .send {
+    padding-inline: 10px;
+  }
+  .messages {
+    gap: 12px;
+    padding-bottom: 10px;
+  }
+  .mine + .other,
+  .other + .mine {
+    margin-top: 0;
+  }
+  .dateBand {
+    margin: 2px 0;
+    padding-block: 3px;
+  }
+  .pendingTray {
+    max-height: min(24dvh, 180px);
+    overflow-y: auto;
+  }
+  .composer > .status:not(:empty) {
+    max-height: 44px;
+    overflow-y: auto;
+  }
+  :global(.app-shell[data-keyboard="open"]) .compactTop {
+    display: none;
+  }
+}
+/* 모바일: 로딩 여부와 관계없이 채팅 너비 유지 */
+@media (max-width: 650px) {
+  .layout {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .chatMain {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}
+
+/* Keep loading and empty chat independent of message content width. */
+@media (max-width: 650px) {
+  .layout {
+    align-items: stretch;
+    width: 100%;
+  }
+  .chatMain {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}
+.loadingShell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 360px;
+  height: calc(100dvh - 180px);
+}
+.loadingHeading {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  height: 54px;
+  flex: none;
+}
+.loadingHeading i {
+  display: block;
+  width: 110px;
+  height: 22px;
+  border-radius: 8px;
+  background: #e3eeea;
+}
+.loadingHeading i + i {
+  width: 84px;
+  height: 36px;
+}
+.loadingMain {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.loadingMessages {
+  width: 100%;
+  padding: 24px 12px;
+  box-sizing: border-box;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+.loadingBubbles {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 28px;
+}
+.loadingBubbles i {
+  display: block;
+  width: 48%;
+  height: 42px;
+  border-radius: 8px;
+  background: var(--line);
+}
+.loadingBubbles i:nth-child(2) {
+  align-self: flex-end;
+  width: 35%;
+}
+.loadingBubbles i:nth-child(3) {
+  width: 57%;
+}
+.loadingComposer {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--mist);
+  border-radius: 8px;
+  background: white;
+  flex: none;
+  margin-top: 4px;
+}
+.loadingComposer i {
+  display: block;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--line);
+}
+.loadingComposer i:first-child {
+  width: 40px;
+}
+.loadingComposer i:nth-child(2) {
+  flex: 1;
+}
+.loadingComposer i:last-child {
+  width: 64px;
+}
+@media (max-width: 650px) {
+  .loadingShell {
+    flex: 1;
+    height: auto;
     min-height: 0;
-    height: 40px;
+  }
+  .loadingHeading {
+    height: 46px;
+  }
+  .loadingMessages {
+    padding: 20px 8px;
+  }
+}
+
+/* ================================================================
+   GROUP CHAT - 데스크톱 디자인 (그룹 홈과 같은 모여락 색상)
+   채팅·사진·투표·Meet Mode 로직은 그대로 두고 모양과 높이만 바꾼다.
+   ================================================================ */
+.roomHeader {
+  display: flex;
+  flex: none;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  min-height: 95px;
+  padding: 15px 20px;
+  background: var(--brown);
+  color: var(--cream);
+}
+.roomHeading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.roomKicker {
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+.roomName {
+  margin: 2px 0 3px;
+  color: var(--cream);
+  font-size: 22px;
+  line-height: 1.2;
+}
+.roomMembers {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #e4d4c5;
+}
+.roomStatusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #83cba3;
+}
+.roomActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+.roomActionLink {
+  color: #e7d9c9;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.roomActionLink:hover {
+  color: white;
+}
+.roomSearchButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 7px 11px;
+  white-space: nowrap;
+  border: 1px solid var(--cream);
+  border-radius: 5px;
+  color: var(--cream);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+.roomSearchButton:hover {
+  background: #624943;
+}
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-bottom: 1px solid var(--line);
+  background: var(--cream);
+}
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #bca699;
+  background: var(--paper);
+  border-radius: 5px;
+  padding: 7px 10px;
+  font: inherit;
+}
+.searchCount {
+  flex: none;
+  font-size: 11px;
+  color: var(--muted);
+}
+.searchClose {
+  flex: none;
+  border: 0;
+  background: transparent;
+  text-decoration: underline;
+  color: var(--brown);
+  font: inherit;
+  cursor: pointer;
+}
+.searchEmpty {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+@media (min-width: 1051px) {
+  .layout {
+    display: grid;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    gap: 14px;
+    grid-template-columns: minmax(0, 1fr) clamp(330px, 28vw, 420px);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .chatMain {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    border: 2px solid var(--brown);
+    border-radius: 9px;
+    background: var(--paper);
+  }
+  .messages,
+  .chatMain > .messages {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+    gap: 18px;
+    padding: 16px 20px 20px;
+    background-color: var(--paper);
+    background-image: radial-gradient(
+      rgba(70, 48, 43, 0.1) 0.65px,
+      transparent 0.7px
+    );
+    background-size: 10px 10px;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .body {
+    max-width: min(78%, 620px);
+  }
+  .bubble {
+    border: 1px solid #6d5045;
+    border-radius: 10px 10px 10px 3px;
+    padding: 9px 13px;
+    background: var(--paper);
+    color: var(--brown);
+    line-height: 1.65;
+    font-size: 13px;
+  }
+  .mine .bubble {
+    border: 1px solid var(--brown);
+    border-radius: 10px 10px 3px 10px;
+    background: var(--brown);
+    color: var(--cream);
+  }
+  .bubbleBare,
+  .mine .bubbleBare {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    color: var(--brown);
+    white-space: normal;
+  }
+  .mine .bubble a {
+    color: #ddf0df;
+  }
+  .sender {
+    margin: 0 0 5px;
+    font-weight: 800;
+    color: var(--brown);
+    font-size: 12px;
+  }
+  .time {
+    margin-top: 4px;
+    color: #927c70;
+    font-size: 10px;
+  }
+  .dateBand {
+    padding: 6px 14px;
+    margin: 2px auto;
+    background: var(--cream);
+    color: var(--brown);
+    border: 1px solid var(--line);
+    font-size: 11px;
+  }
+  .row {
+    gap: 10px;
+  }
+  .chatMain > .banner {
+    margin: 10px 14px 0;
+    flex: none;
+  }
+  .outgoingArea {
+    flex: 0 1 auto;
+    max-height: 25%;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .selectionHint {
+    flex: none;
+    margin: 8px 15px;
+    max-height: 80px;
+    overflow-y: auto;
+  }
+  .selectionDock {
+    flex: none;
+    max-height: 42%;
+    overflow-y: auto;
+  }
+  .composer {
+    position: relative;
+    flex: none;
+    min-width: 0;
+    margin: 0;
+    padding: 9px 12px;
+    border: 0;
+    border-top: 2px solid var(--brown);
+    border-radius: 0;
+    background: var(--paper);
+  }
+  .tools {
+    display: none;
+  }
+  .tools.toolsOpen {
+    position: absolute;
+    left: 10px;
+    bottom: calc(100% + 8px);
+    z-index: 25;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    max-width: min(520px, calc(100vw - 60px));
+    margin: 0;
+    padding: 9px;
+    border: 1px solid var(--brown);
+    border-radius: 8px;
+    background: var(--paper);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 15%);
+  }
+  .chip {
+    padding: 7px 10px;
+    color: var(--brown);
+    background: var(--cream);
+  }
+  .chip:hover,
+  .chipOn {
+    background: #e0cdbb;
+  }
+  .toolsToggle {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 43px;
+    height: 43px;
+    padding: 0;
+    border: 1px solid var(--brown);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--brown);
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .composerBottom {
+    display: flex;
+    min-width: 0;
+    gap: 7px;
+  }
+  .composerBottom :global(.input) {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 43px;
+    padding: 0 12px;
+    border: 1px solid #8f7a6c;
+    background: #fff;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .composerQuickActions {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    flex: none;
+  }
+  .composerQuick {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 43px;
+    padding: 0 11px;
+    border: 1px solid var(--brown);
+    border-radius: 6px;
+    background: var(--cream);
+    color: var(--brown);
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .composerQuick:hover {
+    background: #e6d5c4;
+    text-decoration: none;
+  }
+  .composerQuick:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .send {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 46px;
+    height: 43px;
+    min-height: 0;
+    padding: 0;
+    border-radius: 6px;
+  }
+  .send:disabled {
+    opacity: 0.55;
+  }
+  .composer > .hint {
+    display: none;
+  }
+  .composer > .status:not(:empty) {
+    max-height: 42px;
+    overflow-y: auto;
+    margin-top: 5px;
+  }
+  .rightWrap {
+    min-height: 0;
+    height: 100%;
+  }
+  .rightCol {
+    gap: 14px;
+  }
+}
+
+/* 작은 화면에서는 기존 모바일 채팅 UI 기능을 유지한다. */
+@media (max-width: 1050px) {
+  .roomHeader {
+    display: none;
+  }
+  .composerQuickActions {
+    display: none;
+  }
+}
+
+/* ================================================================
+   추가 안정화: 팝업, 태블릿, 작은 데스크톱의 가로 넘침 방지
+   ================================================================ */
+@media (min-width: 1051px) {
+  .layout,
+  .chatMain,
+  .rightWrap,
+  .rightCol {
+    box-sizing: border-box;
+    min-height: 0;
+  }
+
+  .composerBottom > :global(.input) {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* 첨부 메뉴는 메시지 입력창을 밀어내지 않고 위쪽에 표시 */
+  .attachMenu {
+    position: absolute;
+    z-index: 30;
+    left: 10px;
+    bottom: calc(100% + 8px);
+    width: min(330px, calc(100% - 20px));
+    margin: 0;
+    padding: 8px;
+    border: 1px solid var(--brown);
+    border-radius: 8px;
+    background: var(--paper);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+  }
+
+  .attachMenu button {
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+
+  .searchBar {
+    flex: none;
+  }
+  .searchEmpty {
+    overflow: auto;
+  }
+  .row,
+  .body {
+    min-width: 0;
+  }
+}
+
+/* 태블릿에서 새 헤더가 사라질 때 기존 그룹 표시 유지 */
+@media (min-width: 651px) and (max-width: 1050px) {
+  .compactTop .mobileTitle {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+  }
+  .composerBottom :global(.input) {
+    flex: 1;
+    min-width: 0;
+    width: 0;
+  }
+}
+
+@media (min-width: 1051px) and (max-width: 1240px) {
+  .roomActions {
+    gap: 7px;
+  }
+  .roomActionLink {
+    display: none;
+  }
+  .composerQuick {
+    padding-inline: 7px;
+  }
+  .composerBottom {
+    gap: 5px;
+  }
+}
+
+/* ===== 2026-11-20 채팅 영역 크기/스크롤 최종 보정 =====
+   페이지가 아닌 메시지와 오른쪽 기능 패널만 각각 스크롤하도록 합니다. */
+@media (min-width: 1051px) {
+  .layout {
+    flex: 1 1 0;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .chatMain {
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .chatMain > .roomHeader,
+  .chatMain > .searchBar,
+  .chatMain > .composer,
+  .chatMain > .selectionDock {
+    flex-shrink: 0;
+  }
+  .chatMain > .messages {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    height: 0;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+  }
+  .rightWrap {
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  .rightCol {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* =======================================================================
+   오른쪽 사이드바: 채팅과 한 개의 프레임으로 연결
+   투표 / Meet Mode 는 같은 베이지색 바탕을 사용하고 갈색 가로선으로 구분.
+   이 파일은 최신 채팅 레이아웃 코드의 맨 끝에 추가한 최종 우선순위 규칙입니다.
+   ======================================================================= */
+@media (min-width: 1051px) {
+  .layout {
+    column-gap: 0;
+    gap: 0;
+    grid-template-columns: minmax(0, 1fr) clamp(330px, 28vw, 420px);
+  }
+
+  .chatMain {
+    border-right: 0;
+    border-radius: 9px 0 0 9px;
+  }
+
+  .rightWrap {
+    box-sizing: border-box;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    border: 2px solid var(--brown, #4a302a);
+    border-radius: 0 9px 9px 0;
+    background: #efe1cf;
+  }
+
+  .rightCol {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    min-height: 0;
+    height: 100%;
+    padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    background: #efe1cf;
+  }
+
+  /* 첫 번째 자식은 투표, 두 번째는 Meet Mode: 각기 독립된 흰 카드 테두리 제거 */
+  .rightCol > * {
+    flex: none;
+    align-self: stretch !important;
+    box-sizing: border-box;
+    width: 100%;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 20px 18px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    position: static !important;
+    overflow: visible !important;
+  }
+
+  /* 투표와 Meet Mode 사이에 하나의 가로선만 표시 */
+  .rightCol > :first-child {
+    border-bottom: 2px solid var(--brown, #4a302a) !important;
+  }
+}
+/* =============================================================
+   [그룹 채팅 오른쪽 사이드바 - 참고 이미지 기준 통합 레이아웃]
+   채팅창 | 베이지색 사이드바(투표 / Meet Mode) = 하나의 프레임
+   반드시 chat.module.css 의 마지막에 둡니다.
+   ============================================================= */
+@media (min-width: 1051px) {
+  /* 외곽 테두리는 두 칸에 따로 주지 않고 레이아웃 전체에 한 번만 준다. */
+  .layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) clamp(300px, 20vw, 355px) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    column-gap: 0 !important;
+    row-gap: 0 !important;
+    gap: 0 !important;
+    align-items: stretch !important;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden !important;
+    border: 2px solid #49332e;
+    border-radius: 11px;
+    background: #f0e4d5;
+  }
+
+  /* 왼쪽 채팅창의 둥근 우측 모서리/개별 테두리를 제거한다. */
+  .layout > .chatMain {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* 오른쪽은 '떠 있는 카드'가 아닌 하나의 연속된 베이지색 사이드바. */
+  .layout > .rightWrap {
+    position: relative !important;
+    min-width: 0;
+    min-height: 0;
+    height: 100% !important;
+    box-sizing: border-box;
+    overflow: hidden !important;
+    border: 0 !important;
+    border-left: 2px solid #49332e !important;
+    border-radius: 0 !important;
+    background: #eee0cf !important;
+    box-shadow: none !important;
+  }
+
+  /* 스크롤은 오른쪽 전체 사이드바 안에서만. */
+  .rightWrap > .rightCol {
+    position: relative !important;
+    inset: auto !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    flex: 1 1 auto;
+    gap: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+    background: #eee0cf !important;
+  }
+
+  /* 투표 영역 및 Meet Mode의 바깥 흰 상자 제거 (안쪽 실제 카드 유지). */
+  .rightCol > * {
+    position: static !important;
+    flex: none !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    max-height: none !important;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 21px 17px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  /* 두 기능 사이에는 갈색 한 줄만 둔다. */
+  .rightCol > :first-child {
+    border-bottom: 2px solid #49332e !important;
+  }
+
+  /* 투표 카드가 사이드바 폭을 넘어서지 않도록. */
+  .rightCol > :first-child > * {
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+/* ==========================================
+   그룹 채팅 - 베이지 배경 및 컴팩트 디자인
+   ========================================== */
+
+@media (min-width: 1051px) {
+  /* 채팅과 사이드바 배경색 통일 */
+  .layout {
+    --chat-beige: #f1e5d5;
+  }
+
+  .chatMain > .messages {
+    background: var(--chat-beige) !important;
+    background-image: none !important;
+
+    /* 메시지 간격 축소 */
+    gap: 8px !important;
+    padding: 12px 14px 10px !important;
+  }
+
+  .rightWrap,
+  .rightCol {
+    background-color: var(--chat-beige) !important;
+  }
+
+  /* 메시지 행 간격 */
+  .messages .row {
+    gap: 7px;
+  }
+
+  /* 일반 채팅 말풍선 */
+  .messages .bubble:not(.bubbleBare) {
+    padding: 7px 10px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  /* 상대방 이름 */
+  .messages .sender {
+    margin-bottom: 2px;
+    font-size: 10px;
+  }
+
+  /* 전송 시간 */
+  .messages .time {
+    margin-top: 2px;
+    font-size: 9px;
+  }
+
+  /* 날짜 구분 */
+  .messages .dateBand {
+    margin: 2px 0;
+    padding: 3px 11px;
+    font-size: 10px;
+  }
+
+  /* 하단 입력창도 조금 더 얇게 */
+  .composer {
+    margin-top: 0;
+    padding: 6px 9px;
+  }
+
+  .composerBottom {
+    gap: 6px;
+  }
+
+  /* 불필요한 안내문 숨기기 */
+  .composer > .hint {
+    display: none;
+  }
+}
+
+/* ==========================================
+   채팅 화면 전체(채팅창 + 오른쪽 사이드바 한 프레임)의 가로 폭 조절
+   - 화면을 꽉 채우지 않고 가운데에 모아서 양옆에 여백을 둔다.
+   - 폭을 바꾸려면 max-width 숫자만 고친다. (작게: 960px, 크게: 1240px)
+   반드시 chat.module.css 의 맨 아래에 둔다.
+   ========================================== */
+@media (min-width: 1051px) {
+  .layout {
+    width: 100%;
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+}
+
+/* =====================================================================
+   모바일 채팅 색: PC 와 같은 갈색 · 종이색 · 점무늬로 맞춘다 (650px 이하만)
+   ===================================================================== */
+@media (max-width: 650px) {
+  .chatMain {
+    border: 2px solid var(--brown);
+    border-radius: 9px;
+    overflow: hidden;
+    background: var(--paper);
+  }
+  /* 맨 위 그룹 이름 줄: 갈색 띠 */
+  .compactTop {
+    background: var(--brown);
+    color: var(--cream);
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 0;
+  }
+  .compactTop .mobileTitle strong {
+    color: var(--cream);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 20px;
+  }
+  .compactTop .mobileTitle span {
+    color: rgba(245, 235, 221, 0.75);
+  }
+  .compactTop .meetLauncher,
+  .compactTop :global(button:not(.meetLauncher)) {
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid rgba(245, 235, 221, 0.6);
+    border-radius: 6px;
+    box-shadow: none;
+  }
+  .compactTop button,
+  .compactTop button * {
+    color: var(--cream);
+  }
+  /* 대화 영역: 종이색 + 점무늬 */
+  .messages,
+  .chatMain > .messages {
+    background-color: #f1e5d5; /* PC 대화 영역과 같은 누런색 */
+    background-image: radial-gradient(
+      rgba(70, 48, 43, 0.1) 0.65px,
+      transparent 0.7px
+    );
+    background-size: 10px 10px;
+    padding: 12px 10px;
+  }
+  .bubble {
+    border: 1px solid #6d5045;
+    border-radius: 10px 10px 10px 3px;
+    background: var(--paper);
+    color: var(--brown);
+    box-shadow: none;
+  }
+  .mine .bubble {
+    border: 1px solid var(--brown);
+    border-radius: 10px 10px 3px 10px;
+    background: var(--brown);
+    color: var(--cream);
+  }
+  .bubbleBare,
+  .mine .bubbleBare {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    color: var(--brown);
+    box-shadow: none;
+  }
+  .mine .bubble a {
+    color: #ddf0df;
+  }
+  .sender {
+    color: var(--brown);
+    font-weight: 800;
+  }
+  .time {
+    color: #927c70;
+  }
+  .dateBand {
+    background: var(--cream);
+    color: var(--brown);
+    border: 1px solid var(--line);
+  }
+  /* 입력창: 위에 갈색 선, 종이색 바탕 */
+  .composer {
+    margin: 0;
+    border: 0;
+    border-top: 2px solid var(--brown);
+    border-radius: 0;
+    background: var(--paper);
+  }
+
+  /* PC 처럼 입력창 옆에 약속 · 장소 버튼을 둔다 (좁아서 아이콘만) */
+  .composerQuickActions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: none;
+  }
+  .composerQuick {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--brown);
+    border-radius: 6px;
+    background: var(--cream);
+    color: var(--brown);
+    font-size: 0; /* 글자는 숨기고 아이콘만 (스크린리더용 이름은 aria-label 로 남아 있음) */
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .composerQuick svg {
+    display: block; /* 글자 줄 높이 때문에 아이콘이 위로 뜨는 것을 막는다 */
+    flex: none;
+    width: 18px;
+    height: 18px;
+  }
+  .composerQuick:disabled {
+    opacity: 0.5;
+  }
+  /* 글자를 입력하는 동안(입력창에 커서가 있고 내용이 비어 있지 않을 때)만 약속 · 장소 버튼을 접어
+     입력창을 넓힌다. 입력창을 눌렀을 뿐 비어 있으면 버튼은 그대로 보이고, 글자를 지우거나
+     보내면 다시 나타난다. (:focus-within 이 아니라 :has(input:focus) 라서 버튼을 누르는 순간 사라지지 않는다) */
+  .composerBottom:has(input:focus:not(:placeholder-shown)) .composerQuickActions {
+    display: none;
+  }
+  .composerBottom :global(.input) {
+    min-width: 0;
   }
 }

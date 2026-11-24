@@ -2,6 +2,7 @@
 .wrap {
   display: grid;
   gap: 14px;
+  container-type: inline-size;
 }
 
 .head {
@@ -76,7 +77,18 @@
   gap: 16px;
   align-items: start;
 }
+/* 그룹 홈: 선택 전에는 상세 패널이 없으므로 달력이 전체 폭을 사용 */
+.body.selectionOnly {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 @media (max-width: 900px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container (max-width: 760px) {
   .body {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -111,7 +123,7 @@
   gap: 3px;
   background: var(--white);
   border: 1.5px solid var(--line);
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
   color: var(--ink);
@@ -158,7 +170,7 @@
 
 .panel {
   border: 1.5px solid var(--line);
-  border-radius: 16px;
+  border-radius: 10px;
   background: var(--white);
   padding: 14px 16px;
   display: grid;
@@ -201,40 +213,250 @@
   flex: 1;
 }
 
+.dots {
+  display: none;
+}
+
+/* 모바일: 달력을 작게. 칸은 정사각형에 가깝게 하고, 제목 대신 그룹 색 점으로 표시한다 */
 @media (max-width: 560px) {
-  /* 모바일: 모든 칸을 같은 크기로 맞추고, 약속은 글씨 대신 그룹 색 막대로 보여 줘서 들쭉날쭉하지 않게 */
+  .wrap {
+    gap: 10px;
+  }
+  .monthLabel {
+    min-width: 92px;
+    font-size: 16px;
+  }
+  .nav {
+    width: 30px;
+    height: 30px;
+  }
   .grid {
-    gap: 4px;
-    grid-template-rows: auto;
-    grid-auto-rows: 52px;
+    gap: 3px;
   }
   .cell {
     min-height: 0;
-    height: 100%;
-    padding: 4px 3px 3px;
-    gap: 3px;
-    border-radius: 10px;
-    align-items: stretch;
+    aspect-ratio: 1 / 1;
+    padding: 3px;
+    gap: 2px;
+    border-radius: 8px;
     overflow: hidden;
   }
   .num {
     font-size: 12px;
-    line-height: 1.1;
-    padding-left: 2px;
+  }
+  .chip,
+  .more {
+    display: none;
+  }
+  .dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+  .dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+}
+
+/* Mobile: give event titles the full day-column width. */
+@media (max-width: 650px) {
+  :global(.card):has(> .wrap) {
+    padding: 12px 6px;
+    border-radius: 10px;
+  }
+  .wrap {
+    min-width: 0;
+    gap: 12px;
+  }
+  .head {
+    gap: 6px;
+    padding-inline: 4px;
+  }
+  .month {
+    gap: 4px;
+  }
+  .monthLabel {
+    min-width: 0;
+    font-size: 16px;
+  }
+  .nav {
+    width: 36px;
+    height: 40px;
+  }
+  .body {
+    gap: 16px;
+  }
+  .grid {
+    column-gap: 3px;
+    row-gap: 8px;
+  }
+  .cell {
+    /* 위 560px 규칙의 정사각형(aspect-ratio)이 남으면 칸 폭이 112px 로 늘어나 달력이 화면 밖으로 밀린다 */
+    aspect-ratio: auto;
+    min-height: 112px;
+    padding: 4px 0;
+    gap: 4px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+  }
+  .num {
+    align-self: center;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+  }
+  .today {
+    box-shadow: none;
+  }
+  .today .num {
+    border-radius: 50%;
+    background: var(--teal);
+    color: white;
+  }
+  .selected {
+    background: var(--mint);
+    outline: 1px solid var(--teal);
+    outline-offset: -1px;
+  }
+  .cell:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: -2px;
   }
   .chip {
-    height: 6px;
-    padding: 0;
-    border-left-width: 0;
-    border-radius: 3px;
-    background: var(--c);
-    font-size: 0;
-    line-height: 0;
-    flex: none;
+    box-sizing: border-box;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    text-overflow: clip;
+    flex-shrink: 0;
+    padding: 2px;
+    border-left-width: 2px;
+    font-size: 11px;
+    line-height: 1.35;
+    max-height: 34px;
+    text-align: left;
   }
   .more {
+    padding-inline: 3px;
     font-size: 10px;
-    line-height: 1;
-    text-align: center;
+  }
+  .panel {
+    padding: 12px;
+  }
+  .itemBody strong {
+    overflow-wrap: anywhere;
+  }
+}
+@media (min-width: 1181px) and (min-height: 740px) {
+  .dashboard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    gap: 8px;
+  }
+
+  .dashboard .head,
+  .dashboard .legend {
+    flex: none;
+  }
+
+  .dashboard .body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .dashboard .grid {
+    display: grid;
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: 28px repeat(var(--calendar-weeks), minmax(0, 1fr));
+    gap: 0;
+
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+
+  .dashboard .dow {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .dashboard .cell {
+    min-height: 0;
+    min-width: 0;
+    aspect-ratio: auto;
+    padding: 6px;
+    gap: 3px;
+    overflow: hidden;
+
+    border: 0;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--paper);
+  }
+
+  .dashboard .selected {
+    background: var(--sky);
+  }
+
+  .dashboard .today {
+    box-shadow: inset 0 0 0 2px var(--brown);
+  }
+
+  .dashboard .num {
+    flex: none;
+    font-size: 13px;
+  }
+
+  .dashboard .chip {
+    flex-shrink: 0;
+    max-width: 100%;
+    font-size: 11px;
+  }
+
+  .dashboard .panel {
+    display: none;
+  }
+
+  .dashboard[data-selected='true'] .panel {
+    display: flex;
+    flex-direction: column;
+
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    z-index: 5;
+
+    max-height: 55%;
+    overflow-y: auto;
+    padding: 14px;
+    background: var(--paper);
+    border: 2px solid var(--brown);
+    border-radius: 6px;
+    box-shadow: 0 6px 22px rgb(0 0 0 / 18%);
   }
 }

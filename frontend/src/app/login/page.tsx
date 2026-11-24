@@ -58,7 +58,7 @@ export default function LoginPage() {
                 <circle cx="12" cy="10" r="2.5" />
               </svg>
             </span>
-            MeetMap
+            모여락
           </div>
         </div>
 
@@ -126,6 +126,9 @@ export default function LoginPage() {
 
         <p className="meta" style={{ textAlign: 'center', marginTop: 16 }}>
           우리만 볼 수 있는 기록 · 초대한 친구와만 나눠요
+        </p>
+        <p className="meta" style={{ textAlign: 'center', marginTop: 6 }}>
+          <Link href="/privacy">개인정보 처리방침</Link>
         </p>
       </div>
     </div>

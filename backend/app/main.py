@@ -7,7 +7,8 @@ from fastapi import Depends, FastAPI, Request
 from sqlalchemy import text
 
 from app import models  # noqa: F401 (테이블 정의 등록)
-from app.config import ALLOW_DEV_AUTH
+from app import hardening
+from app.config import ALLOW_DEV_AUTH, ENABLE_DOCS
 from app.db import Base, engine
 from app.deps.auth import get_current_user
 from app.routers import arrivals
@@ -39,7 +40,13 @@ from memory_api.routes import router as memory_router
 
 logger = logging.getLogger("meetmap")
 
-app = FastAPI(title="MeetMap API")
+app = FastAPI(
+    title="MeetMap API",
+    docs_url="/docs" if ENABLE_DOCS else None,
+    redoc_url="/redoc" if ENABLE_DOCS else None,
+    openapi_url="/openapi.json" if ENABLE_DOCS else None,
+)
+hardening.install(app)
 
 
 @app.middleware("http")
@@ -49,7 +56,8 @@ async def _measure_time(request: Request, call_next):
     start = time.perf_counter()
     response = await call_next(request)
     ms = (time.perf_counter() - start) * 1000
-    response.headers["Server-Timing"] = f"app;dur={ms:.0f}"
+    timing = response.headers.get("Server-Timing")
+    response.headers["Server-Timing"] = f"{timing}, app;dur={ms:.0f}" if timing else f"app;dur={ms:.0f}"
     if ms >= 1000:
         logger.warning("느린 요청 %s %s %.0fms", request.method, request.url.path, ms)
     return response
@@ -118,6 +126,9 @@ _EXTRA_COLUMNS = [
     "ALTER TABLE IF EXISTS meeting_candidates ADD COLUMN IF NOT EXISTS poll_id VARCHAR(40)",
     "ALTER TABLE IF EXISTS meeting_candidates ADD COLUMN IF NOT EXISTS closed BOOLEAN NOT NULL DEFAULT FALSE",
     "ALTER TABLE IF EXISTS meeting_candidates ADD COLUMN IF NOT EXISTS chosen BOOLEAN NOT NULL DEFAULT FALSE",
+
+    # 달력: 되는 날의 시간대 (오전만 / 오후만)
+    "ALTER TABLE IF EXISTS member_availability ADD COLUMN IF NOT EXISTS period VARCHAR(8)",
 ]
 
 # 위치 공유: 브라우저 직접 접근에 RLS 적용 (이미 켜져 있으면 건드리지 않는다)
