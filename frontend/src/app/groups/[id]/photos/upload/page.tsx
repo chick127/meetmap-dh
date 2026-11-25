@@ -240,7 +240,7 @@ function Upload({ groupId, onApiError }: { groupId: string; onApiError: (e: unkn
       <div className="page-head">
         <div>
           <p className="eyebrow">그룹 사진</p>
-          <h1 className="page-title">사진 올리기</h1>
+          <h1 className="page-title page-title-sm">사진 올리기</h1>
           <p className="page-sub">올린 사진은 이 그룹의 친구들만 볼 수 있어요.</p>
         </div>
       </div>
